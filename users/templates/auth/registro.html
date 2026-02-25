@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Usuario</title>
+    <link rel="stylesheet" href="{% static 'auth/css/registro.css' %}">
+</head>
+<body>
+    <div class="contenedor">
+        <div class="formulario">
+            <form method="post" action="">
+                {% csrf_token %}
+                <img src="{% static 'auth/images/logo.jpg' %}" alt="Logo">
+                <h1>Registro de Usuario</h1>
+
+                <!-- Comentado: Errores de campos individuales -->
+                
+                {% if form.errors %}
+                    <div class="errores">
+                        <ul>
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                
+
+                <!-- Comentado: Mensajes de éxito o error -->
+                
+                {% if messages %}
+                    <ul class="mensajes">
+                        {% for message in messages %}
+                            <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>
+                                {{ message }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+
+                <!-- Formulario sin mostrar errores -->
+                {% for field in form %}
+                    <p>
+                        {{ field.label_tag }}<br>
+                        {{ field }}
+                    </p>
+                {% endfor %}
+
+                <button type="submit">Registrar</button>
+                <p><a href="{% url 'users:login' %}">¿Ya tienes cuenta? Inicia sesión</a></p>
+                <p><a href="{% url 'home' %}">Volver al home</a></p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

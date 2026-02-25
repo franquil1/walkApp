@@ -1,0 +1,301 @@
+/* Reset y configuración base */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url(../../auth/images/fondoCaminantes.jpg) no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+/* Logo */
+img {
+    width: 70px;
+    height: auto;
+    display: block;
+    margin: 0 auto 20px;
+    border: none;
+    border-radius: 100px;
+    outline: none;
+    background: transparent;
+}
+
+/* Título principal */
+h1 {
+    text-align: center;
+    color: #1b5e20;
+    font-size: 24px;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+/* Contenedor del formulario */
+form {
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 400px;
+    padding: 40px;
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Campos del formulario */
+form p {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(204, 204, 204, 0.5);
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: rgba(241, 248, 255, 0.8);
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: #28a745;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+/* Botón de inicio de sesión */
+button[type="button"].btn-login {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+button[type="button"].btn-login:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+button[type="button"].btn-login:active {
+    transform: translateY(0);
+}
+
+/* Mensajes de Django */
+ul.messages {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 20px auto;
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+ul.messages li {
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    animation: slideInDown 0.4s ease-out;
+}
+
+ul.messages li.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+ul.messages li.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Enlace de registro */
+p {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 15px;
+    color: #333;
+}
+
+a {
+    color: #28a745;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #218838;
+    text-decoration: underline;
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body {
+        padding: 20px;
+    }
+
+    form {
+        padding: 30px 25px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    ul.messages {
+        padding: 0 20px;
+        width: calc(100% - 40px);
+    }
+}
+
+@media (max-width: 480px) {
+    form {
+        padding: 25px 20px;
+    }
+
+    button[type="submit"] {
+        font-size: 15px;
+    }
+}
+
+/* Estilos para el modal de términos y condiciones */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .modal-content p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+
+        .modal-buttons button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-aceptar {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-aceptar:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .btn-cancelar {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-cancelar:hover {
+            background-color: #da190b;
+            transform: scale(1.05);
+        }

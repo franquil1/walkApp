@@ -1,0 +1,102 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Walk App - Mapa Roto</title>
+    <link rel="stylesheet" href="{% static 'mapa_roto/css/mapa-roto.css' %}" />
+    <link rel="icon" href="{% static 'images/imagenes/logo.jpg' %}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <img src="{% static 'images/imagenes/logo.jpg' %}" alt="Logo" class="nav-logo" />
+        <div class="nav-links">
+            <a href="#" class="active" onclick="mostrarInicio()"><i class="fas fa-home"></i> Inicio</a>
+            <a href="#" onclick="abrirModal('modalInstrucciones')"><i class="fas fa-book"></i> Instrucciones</a>
+            <a href="#" onclick="abrirModal('modalAcerca')"><i class="fas fa-info-circle"></i> Acerca</a>
+        </div>
+         <a href="{% url 'juegos' %}" title="Salir"><i class="fas fa-sign-out-alt"></i></a>
+    </nav>
+
+    <div class="pantalla-inicio" id="pantallaInicio">
+        <div class="inicio-contenido">
+            <h1>¡Bienvenido a Mapa Roto!</h1>
+            <p>Selecciona la dificultad para comenzar.</p>
+            <label for="dificultad">Dificultad:</label>
+            <select id="dificultad" onchange="actualizarOpcionesMapa()">
+                <option value="facil">Fácil</option>
+                <option value="normal">Normal</option>
+                <option value="dificil">Difícil</option>
+            </select>
+            <select id="mapa" style="display: none;"></select>
+            <br><br>
+            <button id="boton-comenzar" onclick="iniciarJuego()">Comenzar Juego</button>
+        </div>
+    </div>
+
+    <div class="container" data-image-base-url="{% static '/mapa_roto/images/imagenes_niveles/' %}">
+        <div class="zona-juego">
+            <div class="piezas-container">
+                <div class="piezas" id="piezas"></div>
+            </div>
+            <div class="tablero-container">
+                <div class="tablero" id="tablero"></div>
+            </div>
+        </div>
+        <div class="ver-pista">
+            <button id="btn-pista" onclick="verPista()">
+                <i class="fas fa-search-plus"></i>
+                <div class="contador-pistas" id="pistas-restantes">3</div>
+            </button>
+        </div>
+        <p id="mensaje"></p>
+    </div>
+
+    <div id="modalInstrucciones" class="modal">
+        <div class="modal-contenido">
+            <span class="cerrar" onclick="cerrarModal('modalInstrucciones')">&times;</span>
+            <img src="{% static '/mapa_roto/images/sitio/instrucciones_mapa2.png' %}" class="modal-img" alt="Instrucciones">
+        </div>
+    </div>
+
+    <div id="modalAcerca" class="modal">
+        <div class="modal-contenido">
+            <span class="cerrar" onclick="cerrarModal('modalAcerca')">&times;</span>
+            <img src="{% static '/mapa_roto/images/sitio/AcercaMaparoto.png' %}" class="modal-img" alt="Instrucciones">
+        </div>
+    </div>
+
+    <div id="modalPista" class="modal">
+        <div class="modal-contenido">
+            <span class="cerrar" onclick="cerrarModal('modalPista')">&times;</span>
+            <img id="imagenPista" src="" alt="Pista del mapa" class="modal-img">
+        </div>
+    </div>
+
+    <div id="modalFelicidades" class="modal">
+        <div class="modal-contenido">
+            <span class="cerrar" onclick="cerrarModal('modalFelicidades')">&times;</span>
+            <h2>¡Felicidades!</h2>
+            <p>Has completado el rompecabezas.</p>
+            <button id="btn-reiniciar" onclick="mostrarInicio()">Reiniciar Juego</button>
+        </div>
+        </div>
+
+    <div id="modalPistasAgotadas" class="modal">
+        <div class="modal-contenido">
+            <span class="cerrar" onclick="cerrarModal('modalPistasAgotadas')">&times;</span>
+            <h2>¡Pistas Agotadas!</h2>
+            <p>No te quedan más pistas disponibles para este nivel.</p>
+            <button id="btn-cerrar-pistas" onclick="cerrarModal('modalPistasAgotadas')">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="{% static '/mapa_roto/javascripts/mapa-roto.js' %}" async></script>
+</body>
+
+</html>

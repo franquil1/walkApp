@@ -1,0 +1,130 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Comunidad{% endblock %}
+
+{% block content %}
+<!-- CSS personalizado -->
+<link rel="stylesheet" href="{% static 'comunidad/css/comunidad.css' %}">
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="modalRegistro" tabindex="-1" aria-labelledby="modalRegistroLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalRegistroLabel"><i class="fas fa-lock"></i> Necesitas registrarte</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        Para publicar o comentar necesitas tener una cuenta. ¡Únete a la comunidad de caminantes!
+      </div>
+      <div class="modal-footer">
+        <a href="{% url 'users:registro' %}" class="btn btn-success"><i class="fas fa-user-plus"></i> Registrarse</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="comunidad-container">
+  <h1 class="titulo-comunidad"><i class="fas fa-hiking"></i> Comunidad Walk App</h1>
+
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+    <li class="alert {{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <div class="formulario-publicacion">
+    <h3><i class="fas fa-route"></i> ¿Qué ruta quieres compartir hoy?</h3>
+
+    <form method="post" enctype="multipart/form-data" {% if not user.is_authenticated %} onsubmit="mostrarModal(); return false;" {% endif %}>
+      {% csrf_token %}
+
+      <label for="id_ruta"><i class="fas fa-map-marker-alt"></i> Ruta:</label>
+      {{ publicacion_form.ruta }}
+
+      <label for="id_comentario"><i class="fas fa-comment-dots"></i> Comentario:</label>
+      {{ publicacion_form.comentario }}
+
+      <label for="id_imagen"><i class="fas fa-image"></i> Imagen:</label>
+      <div class="custom-file-upload">
+        <label for="id_imagen" class="upload-label">
+          <i class="fas fa-cloud-upload-alt"></i> Elegir imagen
+        </label>
+        {{ publicacion_form.imagen }}
+        <span class="file-name" id="file-name">Ningún archivo seleccionado</span>
+      </div>
+
+      {% if publicacion_form.errors %}
+      <div class="form-errors">
+        {{ publicacion_form.errors }}
+      </div>
+      {% endif %}
+
+      <button type="submit" name="publicar" class="btn-publicar">
+        <i class="fas fa-paper-plane"></i> Publicar
+      </button>
+    </form>
+  </div>
+
+  <hr class="divider">
+
+  {% for pub in publicaciones %}
+  <div class="card-publicacion">
+    <div class="header-publicacion">
+      <div class="usuario-info">
+        <strong><i class="fas fa-user-circle"></i> {{ pub.usuario.username }}</strong>
+        <span class="fecha"><i class="fas fa-clock"></i> {{ pub.fecha_publicacion|date:"d M Y H:i" }}</span>
+      </div>
+    </div>
+
+    {% if pub.imagen %}
+    <div class="imagen-publicacion">
+      <img src="{{ pub.imagen.url }}" alt="Imagen publicación">
+    </div>
+    {% endif %}
+
+    <div class="contenido-publicacion">
+      <p><strong><i class="fas fa-map"></i> Ruta:</strong> {{ pub.ruta.nombre_ruta }}</p>
+      <p>{{ pub.comentario }}</p>
+    </div>
+
+    <div class="comentarios">
+      <h4><i class="fas fa-comments"></i> Comentarios</h4>
+      {% for com in pub.comentarios.all %}
+      <p><b><i class="fas fa-user"></i> {{ com.usuario.username }}</b>: {{ com.texto }}</p>
+      {% empty %}
+      <p class="sin-comentarios">Sé el primero en comentar esta publicación.</p>
+      {% endfor %}
+
+      <form method="post" class="form-comentario" {% if not user.is_authenticated %} onsubmit="mostrarModal(); return false;" {% endif %}>
+        {% csrf_token %}
+        <input type="text" name="texto" placeholder="Añadir un comentario..." required>
+        <input type="hidden" name="publicacion_id" value="{{ pub.id }}">
+        <button type="submit" name="comentario_submit" class="btn-comentar">
+          <i class="fas fa-paper-plane"></i> Comentar
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+  const fileInput = document.getElementById('id_imagen');
+  const fileNameDisplay = document.getElementById('file-name');
+  if (fileInput) {
+    fileInput.addEventListener('change', function () {
+      fileNameDisplay.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : "Ningún archivo seleccionado";
+    });
+  }
+
+  function mostrarModal() {
+    const modal = new bootstrap.Modal(document.getElementById('modalRegistro'));
+    modal.show();
+  }
+</script>
+{% endblock %}
