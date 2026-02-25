@@ -72,3 +72,6 @@ class RankingSemanal(models.Model):
     
     def __str__(self):
         return f"{self.usuario.username} - Semana {self.semana_inicio}"
+    
+    
+""" comentario para probar las rama optimizacion """
