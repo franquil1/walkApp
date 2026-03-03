@@ -8,15 +8,14 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.timezone import now, timedelta
-
+from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMessage
 from django.core.exceptions import ValidationError
-
 from .models import UsuarioPersonalizado
 from .forms import RegistroUsuarioForms, LoginForm
 from .utils import account_activation_token
-
 from routes.models import RutaRecorrida, Ruta
+from .models import AlertaSOS
 
 # ========== LOGIN ==========
 def registro_usuario(request):
@@ -77,8 +76,8 @@ def registro_usuario(request):
                 email_message.encoding = "utf-8"
                 email_message.send()
 
-                messages.success(request, 'Cuenta creada. Verifica tu correo electrónico para activarla.')
-                return redirect('login')
+                messages.success(request, 'Cuenta creada, Verifica tu correo electrónico para activarla.')
+                return redirect('users:login')
 
             except Exception as e:
                 messages.error(request, f'Error al crear usuario: {str(e)}')
@@ -156,25 +155,30 @@ def activar_cuenta(request, uidb64, token):
 def perfil_usuario(request):
     usuario = request.user
 
+    # Obtener o crear el perfil
+    perfil, _ = UserProfile.objects.get_or_create(user=usuario)
+
     # Rutas recorridas
-    rutas_recorridas = RutaRecorrida.objects.filter(usuario=usuario)
+    rutas_recorridas = RutaRecorrida.objects.filter(
+        usuario=usuario
+    ).select_related('ruta').order_by('-fecha')
 
-    # Total kilómetros y horas
-    total_km = sum([r.ruta.longitud for r in rutas_recorridas if r.ruta.longitud])
-    total_horas = len(rutas_recorridas) * 3  # Supongamos 3h por ruta
-
-    # Rutas favoritas usando el related_name correcto
+    # Rutas favoritas
     rutas_favoritas = usuario.rutas_favoritas.all()
 
-    context = {
-        'usuario': usuario,
-        'rutas_recorridas': rutas_recorridas,
-        'total_km': total_km,
-        'total_horas': total_horas,
-        'rutas_favoritas': rutas_favoritas,
-    }
+    # Totales
+    walks = Walk.objects.filter(usuario=usuario)
+    total_km    = sum(w.distancia_km or 0 for w in walks)
+    total_horas = sum(w.duration_horas or 0 for w in walks)
 
-    return render(request, 'profile/perfil_usuario.html', context)
+    return render(request, 'profile/perfil_usuario.html', {
+        'usuario':         usuario,
+        'perfil':          perfil,          # ← IMPORTANTE: esto conecta foto y SOS
+        'rutas_recorridas': rutas_recorridas,
+        'rutas_favoritas':  rutas_favoritas,
+        'total_km':         round(total_km, 2),
+        'total_horas':      round(total_horas, 2),
+    })
 
 
 # ========== VISTAS DE ADMINISTRADOR ==========
@@ -218,3 +222,157 @@ def admin_reportes(request):
 def admin_usuarios(request):
     usuarios = UsuarioPersonalizado.objects.all().order_by('-date_joined') 
     return render(request, 'admin/admin_usuarios.html', {'usuarios': usuarios})
+
+
+@csrf_exempt
+@login_required
+def enviar_sos(request):
+    """
+    Recibe POST con lat, lng, ruta_id (opcional).
+    1. Guarda AlertaSOS en la BD.
+    2. Envía email al admin.
+    3. Devuelve JSON con el teléfono del contacto de emergencia
+       para que el JS abra WhatsApp.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
+
+    try:
+        data    = json.loads(request.body)
+        lat     = data.get('lat')
+        lng     = data.get('lng')
+        ruta_id = data.get('ruta_id')
+        mensaje = data.get('mensaje', '')
+
+        maps_url = f"https://maps.google.com/?q={lat},{lng}" if lat and lng else ''
+
+        # ── Ruta activa (opcional) ────────────────────────────
+        ruta = None
+        if ruta_id:
+            try:
+                ruta = Ruta.objects.get(id=ruta_id)
+            except Ruta.DoesNotExist:
+                pass
+
+        # ── Guardar en BD ────────────────────────────────────
+        alerta = AlertaSOS.objects.create(
+            usuario  = request.user,
+            ruta     = ruta,
+            latitud  = lat,
+            longitud = lng,
+            maps_url = maps_url,
+            mensaje  = mensaje,
+        )
+
+        # ── Email al admin ────────────────────────────────────
+        try:
+            ruta_nombre = ruta.nombre_ruta if ruta else "No especificada"
+            send_mail(
+                subject = f'🆘 ALERTA SOS — {request.user.username}',
+                message = (
+                    f"ALERTA SOS recibida\n\n"
+                    f"Usuario:  {request.user.username} ({request.user.email})\n"
+                    f"Ruta:     {ruta_nombre}\n"
+                    f"Fecha:    {alerta.fecha_hora.strftime('%d/%m/%Y %H:%M:%S')}\n"
+                    f"Ubicación: {lat}, {lng}\n"
+                    f"Maps:     {maps_url}\n"
+                    f"Mensaje:  {mensaje or 'Sin mensaje'}\n\n"
+                    f"Revisa el panel de administración:\n"
+                    f"{settings.SITE_URL}/admin/routes/alertasos/{alerta.id}/change/"
+                ),
+                from_email = settings.DEFAULT_FROM_EMAIL,
+                recipient_list = [settings.ADMINS[0][1]] if settings.ADMINS else [settings.DEFAULT_FROM_EMAIL],
+                fail_silently = True,
+            )
+        except Exception:
+            pass  # No bloquear si falla el correo
+
+        # ── Teléfono contacto de emergencia ───────────────────
+        telefono_contacto = None
+        nombre_contacto   = None
+        try:
+            from ranking.models import UserProfile
+            perfil = UserProfile.objects.get(user=request.user)
+            telefono_contacto = perfil.contacto_emergencia_telefono
+            nombre_contacto   = perfil.contacto_emergencia_nombre
+        except Exception:
+            pass
+
+        return JsonResponse({
+            'ok':               True,
+            'alerta_id':        alerta.id,
+            'maps_url':         maps_url,
+            'telefono':         telefono_contacto,
+            'nombre_contacto':  nombre_contacto,
+        })
+
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=500)
+    
+# ============================================================
+# VISTAS DE EDICIÓN DE PERFIL Y ADMINISTRADOR
+# ============================================================
+
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from ranking.models import UserProfile, Walk
+
+@login_required
+def editar_perfil(request):
+    usuario = request.user
+    perfil, _ = UserProfile.objects.get_or_create(user=usuario)
+
+    if request.method == 'POST':
+        # ── Datos básicos del usuario ──────────────────────
+        username   = request.POST.get('username', '').strip()
+        email      = request.POST.get('email', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name  = request.POST.get('last_name', '').strip()
+
+        if username:
+            usuario.username   = username
+        if email:
+            usuario.email      = email
+        usuario.first_name = first_name
+        usuario.last_name  = last_name
+
+        # ── Foto de perfil ──────────────────────────────────
+        if 'foto' in request.FILES:
+            perfil.foto = request.FILES['foto']
+
+        # ── Contraseña (solo si se ingresó) ────────────────
+        password1 = request.POST.get('password1', '').strip()
+        password2 = request.POST.get('password2', '').strip()
+
+        if password1:
+            if password1 != password2:
+                messages.error(request, 'Las contraseñas no coinciden.')
+                return redirect('users:editar_perfil')
+            if len(password1) < 8:
+                messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
+                return redirect('users:editar_perfil')
+            usuario.set_password(password1)
+
+        # ── Contacto de emergencia SOS ──────────────────────
+        perfil.contacto_emergencia_nombre   = request.POST.get('contacto_emergencia_nombre', '').strip()
+        perfil.contacto_emergencia_telefono = request.POST.get('contacto_emergencia_telefono', '').strip()
+
+        # ── Guardar ─────────────────────────────────────────
+        usuario.save()
+        perfil.save()
+
+        messages.success(request, '¡Perfil actualizado correctamente!')
+
+        # Si cambió contraseña, re-autenticar para no cerrar sesión
+        if password1:
+            from django.contrib.auth import update_session_auth_hash
+            update_session_auth_hash(request, usuario)
+
+        return redirect('users:perfil_usuario')
+
+    return render(request, 'profile/editar_perfil.html', {
+        'usuario': usuario,
+        'perfil':  perfil,
+    })
+

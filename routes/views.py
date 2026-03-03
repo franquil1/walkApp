@@ -15,11 +15,100 @@ import qrcode
 import json
 from geopy.distance import geodesic
 from io import BytesIO
+from users import views 
 
 
 def mostrarRutas(request):
     # Reuse the lista_rutas view so the template receives the 'rutas' context
     return lista_rutas(request)
+
+
+
+
+# ========== BUSCADOR DE RUTAS (AJAX) ==========
+# Reemplaza tu función buscar_rutas actual en routes/views.py
+# Asegúrate de que 'reverse' y 'JsonResponse' ya estén importados (ya los tienes)
+
+def buscar_rutas(request):
+    """
+    Endpoint AJAX — devuelve JSON con rutas encontradas.
+    Busca por: nombre_ruta, descripcion, ubicacion, puntos_interes.
+    Diferencia entre coincidencias exactas (nombre) y similares (resto).
+    """
+    from django.db.models import Q
+
+    query = request.GET.get('q', '').strip()
+
+    if not query:
+        return JsonResponse({
+            'rutas': [],
+            'query': '',
+            'total_exactas': 0,
+            'total_similares': 0
+        })
+
+    # ── Búsqueda exacta: por nombre ───────────────────────────────────────
+    rutas_exactas = Ruta.objects.filter(
+        nombre_ruta__icontains=query
+    )
+
+    # ── Búsqueda similar: resto de campos ─────────────────────────────────
+    ids_exactas = rutas_exactas.values_list('id', flat=True)
+
+    rutas_similares = Ruta.objects.filter(
+        Q(descripcion__icontains=query)     |
+        Q(ubicacion__icontains=query)       |
+        Q(ubicacion_inicio__icontains=query)|
+        Q(ubicacion_fin__icontains=query)   |
+        Q(puntos_interes__icontains=query)
+    ).exclude(id__in=ids_exactas)
+
+    # ── Serializar ─────────────────────────────────────────────────────────
+    def serializar(rutas, tipo):
+        resultado = []
+        for r in rutas:
+            try:
+                url = reverse('detalle_ruta', args=[r.id])
+            except Exception:
+                url = f'/rutas/{r.id}/'
+
+            desc = ''
+            if r.descripcion:
+                desc = r.descripcion[:110] + '...' if len(r.descripcion) > 110 else r.descripcion
+
+            imagen_url = ''
+            if r.imagen:
+                try:
+                    imagen_url = r.imagen.url
+                except Exception:
+                    imagen_url = ''
+
+            resultado.append({
+                'id':             r.id,
+                'nombre':         r.nombre_ruta,
+                'descripcion':    desc,
+                'dificultad':     r.get_dificultad_display(),  # "Fácil", "Moderado", etc.
+                'dificultad_key': r.dificultad.lower(),         # 'facil', 'moderado', etc.
+                'longitud':       str(r.longitud),
+                'duracion':       r.duracion_estimada or '',
+                'ubicacion':      r.ubicacion or r.ubicacion_inicio or '',
+                'imagen':         imagen_url,
+                'url':            url,
+                'tipo':           tipo,
+            })
+        return resultado
+
+    data = {
+        'query':           query,
+        'rutas':           serializar(rutas_exactas, 'exacta') + serializar(rutas_similares, 'similar'),
+        'total_exactas':   rutas_exactas.count(),
+        'total_similares': rutas_similares.count(),
+    }
+
+    return JsonResponse(data)
+
+
+
 
 
 # ========== CRUD RUTAS ==========
@@ -177,7 +266,7 @@ def marcar_favorita(request, ruta_id):
 def quitar_favorita(request, ruta_id):
     ruta = get_object_or_404(Ruta, id=ruta_id)
     UserRutaFavorita.objects.filter(usuario=request.user, ruta=ruta).delete()
-    return redirect('detalle_ruta', ruta_id=ruta.id)
+    return redirect('users:perfil_usuario')
 
 def detalle_ruta(request, ruta_id):
     ruta = get_object_or_404(Ruta, id=ruta_id)

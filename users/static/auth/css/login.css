@@ -1,301 +1,433 @@
-/* Reset y configuración base */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+/* ================================================
+   login.css — Walk App
+   ================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --verde:       #22c55e;
+  --verde-dark:  #16a34a;
+  --verde-light: #dcfce7;
+  --rojo:        #ef4444;
+  --amarillo:    #f59e0b;
+  --azul:        #3b82f6;
+  --texto:       #1a1a2e;
+  --gris:        #64748b;
+  --borde:       rgba(0,0,0,0.08);
+  --radio:       14px;
 }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: url(../../auth/images/fondoCaminantes.jpg) no-repeat center center fixed;
-    background-size: cover;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: url(../../auth/images/fondoCaminantes.jpg) no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 16px;
 }
 
-/* Logo */
-img {
-    width: 70px;
-    height: auto;
-    display: block;
-    margin: 0 auto 20px;
-    border: none;
-    border-radius: 100px;
-    outline: none;
-    background: transparent;
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
+  z-index: 0;
+  pointer-events: none;
 }
 
-/* Título principal */
-h1 {
-    text-align: center;
-    color: #1b5e20;
-    font-size: 24px;
-    margin-bottom: 25px;
-    font-weight: 600;
+/* ── Wrapper formulario ── */
+.login-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
 }
 
-/* Contenedor del formulario */
 form {
-    background-color: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(10px);
-    width: 100%;
-    max-width: 400px;
-    padding: 40px;
-    border-radius: 15px;
-    border: none;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    animation: fadeInUp 0.6s ease-out;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(16px);
+  border-radius: 22px;
+  padding: 40px 36px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+  animation: fadeUp 0.5s ease;
 }
 
-/* Campos del formulario */
+/* ── Logo ── */
+.form-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.form-logo img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+  border: 3px solid var(--verde-light);
+}
+
+/* ── Títulos ── */
+h1 {
+  text-align: center;
+  color: var(--texto);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.form-subtitle {
+  text-align: center;
+  color: var(--gris);
+  font-size: 0.85rem;
+  margin-bottom: 26px;
+}
+
+/* ── Campos Django as_p ── */
 form p {
-    margin-bottom: 8px;
-    font-size: 14px;
-    color: #333;
-    font-weight: 500;
+  margin-bottom: 14px;
+  font-size: 0.88rem;
+  color: var(--texto);
+  font-weight: 500;
+}
+
+form p label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--gris);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 input[type="text"],
 input[type="password"] {
-    width: 100%;
-    padding: 12px 15px;
-    margin-bottom: 16px;
-    border: 1px solid rgba(204, 204, 204, 0.5);
-    border-radius: 8px;
-    font-size: 14px;
-    background-color: rgba(241, 248, 255, 0.8);
-    transition: all 0.3s ease;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--borde);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: rgba(241,248,255,0.7);
+  transition: all 0.25s ease;
+  color: var(--texto);
 }
 
 input[type="text"]:focus,
 input[type="password"]:focus {
-    outline: none;
-    border-color: #28a745;
-    background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
-}
-/* Botón de inicio de sesión */
-button[type="button"].btn-login {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 12px;
-    width: 100%;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: all 0.3s ease;
+  outline: none;
+  border-color: var(--verde);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.12);
 }
 
-button[type="button"].btn-login:hover {
-    background-color: #218838;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+/* ── Botón login ── */
+.btn-login {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--verde), var(--verde-dark));
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.35);
 }
 
-button[type="button"].btn-login:active {
-    transform: translateY(0);
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(34,197,94,0.4);
 }
 
-/* Mensajes de Django */
-ul.messages {
-    list-style: none;
-    padding: 0;
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto 20px auto;
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+.btn-login:active { transform: translateY(0); }
+
+/* ── Links ── */
+.form-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(0,0,0,0.07);
 }
 
-ul.messages li {
-    padding: 12px 15px;
-    border-radius: 8px;
-    font-size: 14px;
-    margin-bottom: 10px;
-    animation: slideInDown 0.4s ease-out;
+.form-links a {
+  font-size: 0.83rem;
+  color: var(--gris);
+  text-decoration: none;
+  transition: color 0.2s;
+  white-space: nowrap;
 }
 
-ul.messages li.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+.form-links a strong { color: var(--verde-dark); }
+.form-links a:hover  { color: var(--verde-dark); }
+
+/* ================================================
+   TOASTS (mensajes Django)
+   ================================================ */
+.toast-stack {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 16px;
 }
 
-ul.messages li.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  animation: toastIn 0.35s ease;
 }
 
-/* Enlace de registro */
-p {
-    text-align: center;
-    font-size: 14px;
-    margin-top: 15px;
-    color: #333;
+.toast span { flex: 1; line-height: 1.4; }
+
+.toast-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+.toast-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.5;
+  font-size: 0.85rem;
+  padding: 2px 4px;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+.toast-close:hover { opacity: 1; }
+
+.toast--success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.toast--success .toast-icon { color: #16a34a; }
+
+.toast--error,
+.toast--danger  { background: #fff1f2; color: #9f1239; border: 1px solid #fecdd3; }
+.toast--error .toast-icon,
+.toast--danger .toast-icon { color: #e11d48; }
+
+.toast--warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.toast--warning .toast-icon { color: #d97706; }
+
+.toast--info    { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+.toast--info .toast-icon { color: #2563eb; }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes toastOut {
+  to { opacity: 0; transform: translateY(-12px); }
 }
 
-a {
-    color: #28a745;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
+/* ================================================
+   MODAL TÉRMINOS Y CONDICIONES
+   ================================================ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 9000;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  backdrop-filter: blur(5px);
 }
 
-a:hover {
-    color: #218838;
-    text-decoration: underline;
+.modal-overlay.active { display: flex; }
+
+.modal-card {
+  background: #fff;
+  border-radius: 22px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.3);
+  animation: modalIn 0.3s ease;
 }
 
-/* Animaciones */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-@keyframes slideInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Header modal */
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    body {
-        padding: 20px;
-    }
-
-    form {
-        padding: 30px 25px;
-    }
-
-    h1 {
-        font-size: 20px;
-    }
-
-    ul.messages {
-        padding: 0 20px;
-        width: calc(100% - 40px);
-    }
+.modal-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--verde-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--verde-dark);
+  font-size: 1.2rem;
+  flex-shrink: 0;
 }
 
+.modal-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--texto);
+  margin: 0;
+}
+
+.modal-subtitle {
+  font-size: 0.75rem;
+  color: var(--gris);
+  margin: 0;
+}
+
+.modal-x {
+  margin-left: auto;
+  background: #f5f5f5;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--gris);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+.modal-x:hover { background: #fee2e2; color: var(--rojo); }
+
+/* Body modal */
+.modal-body {
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.termino-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.termino-item > i {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--verde-dark);
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  border: 1px solid #e8f5e9;
+}
+
+.termino-item strong {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--texto);
+  margin-bottom: 4px;
+}
+
+.termino-item p {
+  font-size: 0.82rem;
+  color: var(--gris);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Footer modal */
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.btn-cancelar,
+.btn-aceptar {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-cancelar {
+  background: #f5f5f5;
+  color: var(--gris);
+}
+.btn-cancelar:hover { background: #eee; }
+
+.btn-aceptar {
+  background: linear-gradient(135deg, var(--verde), var(--verde-dark));
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(34,197,94,0.3);
+}
+.btn-aceptar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(34,197,94,0.4);
+}
+
+/* ── Animación general ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ── */
 @media (max-width: 480px) {
-    form {
-        padding: 25px 20px;
-    }
-
-    button[type="submit"] {
-        font-size: 15px;
-    }
+  form { padding: 30px 22px; }
+  h1   { font-size: 1.3rem; }
+  .modal-card { border-radius: 18px; }
+  .modal-header, .modal-body, .modal-footer { padding-left: 16px; padding-right: 16px; }
 }
-
-/* Estilos para el modal de términos y condiciones */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-content h2 {
-            color: #333;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 24px;
-            text-align: center;
-        }
-
-        .modal-content p {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 15px;
-            text-align: justify;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-            justify-content: center;
-        }
-
-        .modal-buttons button {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .btn-aceptar {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .btn-aceptar:hover {
-            background-color: #45a049;
-            transform: scale(1.05);
-        }
-
-        .btn-cancelar {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .btn-cancelar:hover {
-            background-color: #da190b;
-            transform: scale(1.05);
-        }

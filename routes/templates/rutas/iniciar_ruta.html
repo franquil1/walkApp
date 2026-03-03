@@ -2,43 +2,52 @@
 {% load static %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/rutas/iniciar_ruta.css' %}">
+  <link rel="stylesheet" href="{% static 'rutas/css/iniciar_ruta.css' %}">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
 {% endblock %}
 
 {% block content %}
 <div class="iniciar-container container py-4">
-  <h1><i class="fas fa-route"></i> {{ ruta.nombre_ruta }}</h1>
-  
-  <!-- Estado GPS -->
-  <div class="text-center">
-    <span id="gps-status" class="gps-status">
-      <i class="fas fa-satellite-dish"></i> Conectando GPS...
-    </span>
+
+  <!-- Header -->
+  <div class="ruta-header">
+    <h1><i class="fas fa-route"></i> {{ ruta.nombre_ruta }}</h1>
+    <div class="text-center">
+      <span id="gps-status" class="gps-status">
+        <i class="fas fa-satellite-dish"></i> Conectando GPS...
+      </span>
+    </div>
+  </div>
+
+  <!-- Botón SOS -->
+  <div class="btn-ayuda-wrapper">
+    <button class="btn-ayuda" id="sos-btn" onclick="activarSOS()">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>SOS</span>
+    </button>
   </div>
 
   <!-- Panel de Estadísticas -->
   <div class="stats-panel">
-    <div class="row">
+    <div class="row g-0">
       <div class="col-4">
         <div class="stat-item">
-          <i class="fas fa-ruler-horizontal" style="font-size: 1.5em;"></i>
+          <i class="fas fa-ruler-horizontal stat-icon"></i>
           <div class="stat-value" id="distancia-recorrida">0.00</div>
           <div class="stat-label">Kilómetros</div>
         </div>
       </div>
       <div class="col-4">
-        <div class="stat-item">
-          <i class="fas fa-star" style="font-size: 1.5em;"></i>
+        <div class="stat-item stat-item--mid">
+          <i class="fas fa-star stat-icon"></i>
           <div class="stat-value" id="puntos-ganados">0</div>
           <div class="stat-label">Puntos</div>
         </div>
       </div>
       <div class="col-4">
         <div class="stat-item">
-          <i class="fas fa-clock" style="font-size: 1.5em;"></i>
+          <i class="fas fa-clock stat-icon"></i>
           <div class="stat-value" id="tiempo-transcurrido">00:00</div>
           <div class="stat-label">Tiempo</div>
         </div>
@@ -58,331 +67,150 @@
     </button>
   </div>
 
-  <!-- Log de debugging (oculto en producción) -->
-  <div id="debug-log" style="display: none; margin-top: 20px; padding: 10px; background: #f5f5f5; border-radius: 8px; font-family: monospace; font-size: 0.8em; max-height: 200px; overflow-y: auto;"></div>
+  <!-- Modal SOS -->
+  <div class="sos-modal" id="sos-modal">
+    <div class="sos-modal-content">
+      <div class="sos-icon-big"><i class="fas fa-exclamation-triangle"></i></div>
+      <h2>¿Necesitas ayuda?</h2>
+      <p>Se notificará a tu contacto de emergencia con tu ubicación actual.</p>
+      <div class="sos-modal-buttons">
+        <button class="btn-sos-confirm" onclick="confirmarSOS()">
+          <i class="fas fa-phone"></i> Sí, pedir ayuda
+        </button>
+        <button class="btn-sos-cancel" onclick="cerrarSOS()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debug (oculto en producción) -->
+  <div id="debug-log" style="display:none; margin-top:20px; padding:10px; background:#f5f5f5; border-radius:8px; font-family:monospace; font-size:0.8em; max-height:200px; overflow-y:auto;"></div>
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
+
+  <!-- 1. Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- 2. Variables de Django — OBLIGATORIO antes de Trakeo.js -->
   <script>
-    // ================================
-    // CONFIGURACIÓN INICIAL
-    // ================================
-    const rutaId = {{ ruta.id }};
-    const rutaCoordsRaw = '{{ ruta.coordenadas_ruta|escapejs }}';
-    let rutaCoords = [];
+    const rutaId             = {{ ruta.id }};
+    const rutaCoordsRaw      = '{{ ruta.coordenadas_ruta|escapejs }}';
+    const urlGuardarPosicion = '{% url "guardar_posicion" %}';
+    const urlTerminarRuta    = '{% url "terminar_ruta" ruta.id %}';
+  </script>
 
-    try {
-      if (rutaCoordsRaw && rutaCoordsRaw !== 'null' && rutaCoordsRaw !== 'None' && rutaCoordsRaw !== '') {
-        rutaCoords = JSON.parse(rutaCoordsRaw);
-      }
-    } catch (e) {
-      console.error('Error parseando coordenadas:', e);
+  <!-- 3. Trakeo.js — usa las variables definidas arriba -->
+  <script src="{% static 'Trakeo.js' %}"></script>
+
+  <!-- 4. Lógica SOS -->
+  <script>
+    function activarSOS() {
+      document.getElementById('sos-modal').classList.add('active');
     }
 
-    // Variables de tracking
-    let watchId = null;
-    let lastPosition = null;
-    let userPath = [];
-    let totalDistanciaMetros = 0;
-    let userPolyline = null;
-    let currentMarker = null;
-    let startTime = Date.now();
-    let timerInterval = null;
-
-    // ================================
-    // INICIALIZAR MAPA
-    // ================================
-    const defaultCenter = rutaCoords.length > 0 ? rutaCoords[0] : [2.444814, -76.614739];
-    const map = L.map('map').setView(defaultCenter, 15);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Dibujar ruta planificada (en azul)
-    if (rutaCoords.length > 1) {
-      L.polyline(rutaCoords, { 
-        color: '#2196F3',
-        weight: 4,
-        opacity: 0.6,
-        dashArray: '10, 10'
-      }).addTo(map);
-      
-      // Marcador de inicio
-      L.marker(rutaCoords[0], {
-        icon: L.icon({
-          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41]
-        })
-      }).addTo(map).bindPopup('🏁 Inicio de la ruta');
-      
-      // Marcador de fin
-      L.marker(rutaCoords[rutaCoords.length - 1], {
-        icon: L.icon({
-          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41]
-        })
-      }).addTo(map).bindPopup('🏆 Meta');
-      
-      map.fitBounds(L.polyline(rutaCoords).getBounds());
+    function cerrarSOS() {
+      document.getElementById('sos-modal').classList.remove('active');
     }
 
-    // ================================
-    // FUNCIONES DE CÁLCULO
-    // ================================
-    function calcularDistancia(lat1, lon1, lat2, lon2) {
-      const R = 6371e3; // Radio de la Tierra en metros
-      const φ1 = lat1 * Math.PI / 180;
-      const φ2 = lat2 * Math.PI / 180;
-      const Δφ = (lat2 - lat1) * Math.PI / 180;
-      const Δλ = (lon2 - lon1) * Math.PI / 180;
-      
-      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ/2) * Math.sin(Δλ/2);
-      
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      
-      return R * c; // Distancia en metros
-    }
+    function confirmarSOS() {
+      const btn = document.querySelector('.btn-sos-confirm');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Enviando...';
 
-    function actualizarEstadisticas() {
-      // Actualizar distancia
-      const distanciaKm = totalDistanciaMetros / 1000;
-      document.getElementById('distancia-recorrida').textContent = distanciaKm.toFixed(2);
-      
-      // Calcular puntos (10 puntos por cada 5 metros)
-      const puntos = Math.floor((totalDistanciaMetros / 5) * 10);
-      document.getElementById('puntos-ganados').textContent = puntos;
-    }
-
-    function actualizarTiempo() {
-      const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      const minutes = Math.floor(elapsed / 60);
-      const seconds = elapsed % 60;
-      document.getElementById('tiempo-transcurrido').textContent = 
-        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }
-
-    function log(message, type = 'info') {
-      const timestamp = new Date().toLocaleTimeString();
-      const debugLog = document.getElementById('debug-log');
-      debugLog.innerHTML += `<div style="color: ${type === 'error' ? 'red' : type === 'success' ? 'green' : 'blue'}">[${timestamp}] ${message}</div>`;
-      debugLog.scrollTop = debugLog.scrollHeight;
-      console.log(message);
-    }
-
-    // ================================
-    // TRACKING GPS
-    // ================================
-    function iniciarTracking() {
       if (!navigator.geolocation) {
-        alert('❌ Tu navegador no soporta geolocalización');
-        updateGPSStatus('error', 'GPS no disponible');
+        enviarSOS(null, null);
         return;
       }
 
-      log('🚀 Iniciando tracking GPS...', 'info');
-      updateGPSStatus('active', 'GPS Activo');
-
-      const options = {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      };
-
-      watchId = navigator.geolocation.watchPosition(
-        onGPSSuccess,
-        onGPSError,
-        options
+      navigator.geolocation.getCurrentPosition(
+        pos => enviarSOS(pos.coords.latitude, pos.coords.longitude),
+        ()  => enviarSOS(null, null),
+        { timeout: 8000 }
       );
-
-      // Iniciar temporizador
-      timerInterval = setInterval(actualizarTiempo, 1000);
     }
 
-    function onGPSSuccess(position) {
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-      const accuracy = position.coords.accuracy;
-
-      log(`📍 Posición: ${lat.toFixed(6)}, ${lng.toFixed(6)} (±${accuracy.toFixed(0)}m)`, 'success');
-
-      // Actualizar marcador de posición actual
-      if (currentMarker) {
-        map.removeLayer(currentMarker);
-      }
-      
-      currentMarker = L.marker([lat, lng], {
-        icon: L.divIcon({
-          className: 'position-marker',
-          html: '<div style="background: #FF5722; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>',
-          iconSize: [20, 20],
-          iconAnchor: [10, 10]
-        })
-      }).addTo(map);
-
-      // Si es la primera posición
-      if (!lastPosition) {
-        lastPosition = { lat, lng };
-        userPath.push([lat, lng]);
-        map.setView([lat, lng], 17);
-        log('✅ Primera posición registrada', 'success');
-        return;
-      }
-
-      // Calcular distancia desde última posición
-      const distanciaMetros = calcularDistancia(
-        lastPosition.lat, lastPosition.lng,
-        lat, lng
-      );
-
-      log(`📏 Distancia desde último punto: ${distanciaMetros.toFixed(2)}m`, 'info');
-
-      // Solo registrar si se movió más de 3 metros (reducido para mayor sensibilidad)
-      if (distanciaMetros >= 3) {
-        totalDistanciaMetros += distanciaMetros;
-        userPath.push([lat, lng]);
-
-        // Actualizar polyline del usuario (en rojo)
-        if (userPolyline) {
-          map.removeLayer(userPolyline);
-        }
-        userPolyline = L.polyline(userPath, { 
-          color: '#FF5722',
-          weight: 5,
-          opacity: 0.9
-        }).addTo(map);
-
-        // Centrar mapa en posición actual
-        map.setView([lat, lng], map.getZoom());
-
-        // Actualizar UI
-        actualizarEstadisticas();
-
-        // Enviar al servidor
-        enviarPosicion(lat, lng, distanciaMetros);
-
-        // Actualizar última posición
-        lastPosition = { lat, lng };
-
-        log(`✅ Movimiento registrado: ${(totalDistanciaMetros/1000).toFixed(3)} km totales`, 'success');
-      } else {
-        log(`⏸️ Movimiento muy pequeño (${distanciaMetros.toFixed(2)}m), esperando...`, 'info');
-      }
-    }
-
-    function onGPSError(error) {
-      log(`❌ Error GPS (${error.code}): ${error.message}`, 'error');
-      updateGPSStatus('error', 'Error GPS');
-
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          alert('⚠️ Debes permitir el acceso a tu ubicación para usar esta función');
-          break;
-        case error.POSITION_UNAVAILABLE:
-          log('⚠️ Posición no disponible, reintentando...', 'error');
-          break;
-        case error.TIMEOUT:
-          log('⚠️ Timeout, reintentando...', 'error');
-          break;
-      }
-    }
-
-    function enviarPosicion(lat, lng, distanciaMetros) {
-      fetch('{% url "guardar_posicion" %}', {
+    function enviarSOS(lat, lng) {
+      fetch('/rutas/sos/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
+          'X-CSRFToken': getCookie('csrftoken'),
         },
         body: JSON.stringify({
-          ruta_id: rutaId,
-          lat: lat,
-          lng: lng,
-          distancia_metros: distanciaMetros,
-          distancia_total: totalDistanciaMetros
+          lat:     lat,
+          lng:     lng,
+          ruta_id: typeof rutaId !== 'undefined' ? rutaId : null,
+          mensaje: '',
         })
       })
-      .then(response => response.json())
+      .then(r => r.json())
       .then(data => {
-        if (data.success) {
-          log('💾 Datos guardados en servidor', 'success');
+        cerrarSOS();
+        if (data.ok) {
+          mostrarConfirmacionSOS(data);
+          if (data.telefono) {
+            const texto = encodeURIComponent(
+              `🆘 *ALERTA SOS — Walk App*\n\n` +
+              `Necesito ayuda.\n` +
+              (data.maps_url
+                ? `📍 Mi ubicación: ${data.maps_url}`
+                : `📍 Sin coordenadas GPS disponibles.`)
+            );
+            setTimeout(() => window.open(`https://wa.me/${data.telefono}?text=${texto}`, '_blank'), 800);
+          }
         } else {
-          log('⚠️ Error en servidor: ' + (data.error || 'desconocido'), 'error');
+          alert('Error al enviar SOS. Llama al 123 (emergencias Colombia).');
         }
       })
-      .catch(error => {
-        log('❌ Error de red: ' + error.message, 'error');
+      .catch(() => {
+        cerrarSOS();
+        alert('Sin conexión. Llama al 123 (emergencias Colombia).');
+      })
+      .finally(() => {
+        const btn = document.querySelector('.btn-sos-confirm');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-phone"></i> Sí, pedir ayuda';
+        }
       });
     }
 
-    function updateGPSStatus(status, text) {
-      const statusEl = document.getElementById('gps-status');
-      statusEl.className = 'gps-status gps-' + status;
-      statusEl.innerHTML = `<i class="fas fa-${status === 'active' ? 'satellite-dish' : 'exclamation-triangle'}"></i> ${text}`;
+    function mostrarConfirmacionSOS(data) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+        background: #fff; border: 2px solid #e53935; border-radius: 14px;
+        padding: 16px 20px; z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        text-align: center; min-width: 280px; font-family: inherit;
+      `;
+      toast.innerHTML = `
+        <div style="font-size:2rem; margin-bottom:8px;">🆘</div>
+        <strong style="color:#e53935; display:block; margin-bottom:4px;">Alerta SOS enviada</strong>
+        <small style="color:#666;">
+          ${data.nombre_contacto
+            ? `Notificando a <strong>${data.nombre_contacto}</strong> por WhatsApp`
+            : 'Admin notificado. Mantente en tu posición.'}
+        </small>
+        ${data.maps_url
+          ? `<br><a href="${data.maps_url}" target="_blank" style="color:#e53935; font-size:0.8rem;">📍 Ver mi ubicación</a>`
+          : ''}
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 7000);
     }
 
     function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
+      let value = null;
+      document.cookie.split(';').forEach(c => {
+        const [k, v] = c.trim().split('=');
+        if (k === name) value = decodeURIComponent(v);
+      });
+      return value;
     }
-
-    // ================================
-    // CONTROLES
-    // ================================
-    document.getElementById('terminar-btn').addEventListener('click', function() {
-      if (!confirm(`¿Terminar ruta?\n\n📏 Distancia: ${(totalDistanciaMetros/1000).toFixed(2)} km\n⭐ Puntos: ${Math.floor((totalDistanciaMetros / 5) * 10)}`)) {
-        return;
-      }
-
-      // Detener tracking
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-        log('⏹️ Tracking detenido', 'info');
-      }
-      if (timerInterval) {
-        clearInterval(timerInterval);
-      }
-
-      // Redirigir a terminar ruta
-      window.location.href = '{% url "terminar_ruta" ruta.id %}';
-    });
-
-    // ================================
-    // INICIAR AL CARGAR
-    // ================================
-    window.addEventListener('load', function() {
-      log('🎯 Página cargada, iniciando tracking...', 'info');
-      iniciarTracking();
-      
-      // Mostrar debug log (comentar en producción)
-      // document.getElementById('debug-log').style.display = 'block';
-    });
-
-    // Prevenir cierre accidental
-    window.addEventListener('beforeunload', function(e) {
-      if (totalDistanciaMetros > 0) {
-        e.preventDefault();
-        e.returnValue = '¿Seguro que quieres salir? Se perderá tu progreso.';
-        return e.returnValue;
-      }
-    });
   </script>
+
 {% endblock %}

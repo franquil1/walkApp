@@ -1,4 +1,6 @@
 from django.urls import path
+from django import views
+from users import urls 
 from . import views
 
 urlpatterns = [
@@ -12,6 +14,7 @@ urlpatterns = [
     # RUTAS
     path('rutas/crear/', views.crear_ruta, name='crear_ruta'),
     path('rutas/', views.lista_rutas, name='rutas'),
+    path('buscar-rutas/', views.buscar_rutas, name='buscar_rutas'),
     path('rutas/<int:ruta_id>/', views.detalle_ruta, name='detalle_ruta'),
     path('rutas/eliminar/<int:pk>/', views.eliminar_ruta, name='eliminar_ruta'),
     path('rutas/<int:ruta_id>/qr/', views.generar_qr_ruta, name='generar_qr_ruta'),

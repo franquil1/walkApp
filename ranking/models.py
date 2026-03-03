@@ -36,6 +36,17 @@ class UserProfile(models.Model):
         
         self.save()
 
+contacto_emergencia_nombre = models.CharField(
+    max_length=100,
+    blank=True, null=True,
+    verbose_name="Nombre contacto de emergencia"
+)
+contacto_emergencia_telefono = models.CharField(
+    max_length=20,
+    blank=True, null=True,
+    verbose_name="Teléfono contacto de emergencia (con código país, ej: 573001234567)"
+)
+
 class Walk(models.Model):
     coordenadas_recorrido = models.JSONField(blank=True, null=True, verbose_name="Coordenadas del Recorrido")
     duracion_segundos = models.IntegerField(default=0, verbose_name="Duración en Segundos")

@@ -5,93 +5,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'auth/css/login.css' %}"/>
-    <title>Iniciar Sesión</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Iniciar Sesión — Walk App</title>
 </head>
 <body>
-    
-    {# Bloque para mostrar mensajes de Django #}
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-        <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    
-    <!-- Modal de Términos y Condiciones -->
-    <div class="modal-overlay" id="modalTerminos">
-        <div class="modal-content">
-            <h2>Términos y Condiciones</h2>
-            <p>
-                Walk App es una plataforma diseñada para consultar, crear y registrar rutas de senderismo, 
-                permitiendo a los usuarios explorar caminos locales, visualizar detalles de trayectos y 
-                administrar un perfil personal. Al utilizar la aplicación, el usuario acepta que la información 
-                mostrada puede verse afectada por factores externos como clima, señal GPS o cambios en el terreno, 
-                por lo que Walk App no garantiza precisión absoluta. Asimismo, el usuario reconoce que las 
-                actividades al aire libre conllevan riesgos inherentes, los cuales asume bajo su propia 
-                responsabilidad. La aplicación se ofrece "tal cual", sin promesas de disponibilidad continua. 
-                Walk App no será responsable por accidentes, pérdidas o daños generados durante el uso del servicio.
-            </p>
-            <p>
-                El usuario se compromete a usar la plataforma de manera legal, adecuada y respetuosa, 
-                absteniéndose de manipular el sistema, crear contenido ofensivo o infringir derechos de terceros. 
-                Es responsable de la veracidad de los datos que proporciona, así como de mantener la 
-                confidencialidad de su contraseña y la seguridad de su cuenta. Toda actividad realizada desde 
-                su perfil será considerada bajo su responsabilidad, y Walk App no asumirá consecuencias derivadas 
-                de accesos no autorizados causados por negligencia del usuario. Al subir rutas, descripciones u 
-                otros datos, el usuario garantiza que el contenido es propio o cuenta con los permisos necesarios. 
-                Walk App puede mostrar dicho contenido dentro de la plataforma sin reclamar propiedad sobre él.
-            </p>
-            <p>
-                La aplicación puede recopilar información básica de registro y datos de uso necesarios para su 
-                funcionamiento, los cuales serán gestionados conforme a la normativa vigente en Colombia. El 
-                usuario puede solicitar la eliminación de su cuenta en cualquier momento, mientras que Walk App 
-                se reserva el derecho de suspender perfiles que incumplan los términos establecidos. Estos 
-                Términos y Condiciones pueden actualizarse cuando sea necesario, y el uso continuo de la 
-                aplicación después de los cambios implica aceptación automática. Walk App mantiene la propiedad 
-                intelectual sobre su nombre, logotipo, diseño y funcionalidades. El servicio se rige por las 
-                leyes colombianas y cualquier disputa será tratada bajo esta jurisdicción.
-            </p>
-            <div class="modal-buttons">
-                <button type="button" class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
-                <button type="button" class="btn-aceptar" onclick="aceptarTerminos()">Aceptar</button>
-            </div>
+
+  <!-- ── Mensajes Django ── -->
+  {% if messages %}
+    <div class="toast-stack">
+      {% for message in messages %}
+        <div class="toast toast--{{ message.tags }}">
+          <i class="toast-icon fas
+            {% if message.tags == 'success' %}fa-circle-check
+            {% elif message.tags == 'error' or message.tags == 'danger' %}fa-circle-xmark
+            {% elif message.tags == 'warning' %}fa-triangle-exclamation
+            {% else %}fa-circle-info{% endif %}">
+          </i>
+          <span>{{ message }}</span>
+          <button class="toast-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-xmark"></i>
+          </button>
         </div>
+      {% endfor %}
     </div>
+  {% endif %}
 
+  <!-- ── Modal Términos y Condiciones ── -->
+  <div class="modal-overlay" id="modalTerminos">
+    <div class="modal-card">
+
+      <div class="modal-header">
+        <div class="modal-header-icon">
+          <i class="fas fa-file-shield"></i>
+        </div>
+        <div>
+          <h2>Términos y Condiciones</h2>
+          <p class="modal-subtitle">Walk App · Versión 2025</p>
+        </div>
+        <button class="modal-x" onclick="cerrarModal()"><i class="fas fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="termino-item">
+          <i class="fas fa-map-location-dot"></i>
+          <div>
+            <strong>Uso de la plataforma</strong>
+            <p>Walk App te permite consultar, crear y registrar rutas de senderismo. La información puede verse afectada por clima, GPS o cambios en el terreno. Las actividades al aire libre conllevan riesgos que asumes bajo tu propia responsabilidad.</p>
+          </div>
+        </div>
+        <div class="termino-item">
+          <i class="fas fa-user-shield"></i>
+          <div>
+            <strong>Tu responsabilidad</strong>
+            <p>Te comprometes a usar la plataforma de forma legal y respetuosa. Eres responsable de la veracidad de tus datos y de mantener la confidencialidad de tu contraseña.</p>
+          </div>
+        </div>
+        <div class="termino-item">
+          <i class="fas fa-database"></i>
+          <div>
+            <strong>Datos personales</strong>
+            <p>Recopilamos información básica de registro conforme a la normativa colombiana. Puedes solicitar la eliminación de tu cuenta en cualquier momento.</p>
+          </div>
+        </div>
+        <div class="termino-item">
+          <i class="fas fa-scale-balanced"></i>
+          <div>
+            <strong>Jurisdicción</strong>
+            <p>El servicio se rige por las leyes colombianas. Walk App se reserva el derecho de suspender perfiles que incumplan estos términos.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancelar" onclick="cerrarModal()">
+          <i class="fas fa-xmark"></i> Cancelar
+        </button>
+        <button type="button" class="btn-aceptar" onclick="aceptarTerminos()">
+          <i class="fas fa-check"></i> Aceptar y continuar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Formulario Login ── -->
+  <div class="login-wrapper">
     <form method="post" id="loginForm">
-        <img src="{% static 'auth/images/logo.jpg' %}" alt="Logo">
-        <h1>Iniciar Sesión</h1>
-        {% csrf_token %}
-        {{ form.as_p }} {# Esto renderizará los campos username y password del LoginForm #}
-        <button type="button" onclick="mostrarTerminos()" class="btn-login">Iniciar Sesión</button>
-        <p>¿No tienes cuenta? <a href="{% url 'users:registro' %}">Regístrate aquí</a></p>
-        <p><a href="{% url 'users:password_reset' %}">¿Olvidaste tu contraseña?</a></p>
-        <p><a href="{% url 'home' %}">Volver al Home</a></p>
+      <div class="form-logo">
+        <img src="{% static 'auth/images/logo.jpg' %}" alt="Walk App Logo">
+      </div>
+
+      <h1>Bienvenido de nuevo</h1>
+      <p class="form-subtitle">Inicia sesión para continuar tu aventura</p>
+
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <button type="button" class="btn-login" onclick="mostrarTerminos()">
+        <i class="fas fa-right-to-bracket"></i> Iniciar Sesión
+      </button>
+
+      <div class="form-links">
+        <a href="{% url 'users:registro' %}">¿No tienes cuenta? <strong>Regístrate</strong></a>
+        <a href="{% url 'users:password_reset' %}">¿Olvidaste tu contraseña?</a>
+        <a href="{% url 'home' %}"><i class="fas fa-arrow-left"></i> Volver al inicio</a>
+      </div>
     </form>
+  </div>
+    </form>
+  </div>
 
-    <script>
-        function mostrarTerminos() {
-            document.getElementById('modalTerminos').classList.add('active');
-        }
+  <script>
+    function mostrarTerminos() {
+      document.getElementById('modalTerminos').classList.add('active');
+    }
+    function cerrarModal() {
+      document.getElementById('modalTerminos').classList.remove('active');
+    }
+    function aceptarTerminos() {
+      document.getElementById('loginForm').submit();
+    }
+    document.getElementById('modalTerminos').addEventListener('click', function(e) {
+      if (e.target === this) cerrarModal();
+    });
 
-        function cerrarModal() {
-            document.getElementById('modalTerminos').classList.remove('active');
-        }
-
-        function aceptarTerminos() {
-            // Enviar el formulario
-            document.getElementById('loginForm').submit();
-        }
-
-        // Cerrar modal si se hace clic fuera del contenido
-        document.getElementById('modalTerminos').addEventListener('click', function(e) {
-            if (e.target === this) {
-                cerrarModal();
-            }
-        });
-    </script>
+    // Auto-dismiss toasts after 5s
+    document.querySelectorAll('.toast').forEach(t => {
+      setTimeout(() => t.style.animation = 'toastOut 0.4s ease forwards', 5000);
+      setTimeout(() => t.remove(), 5400);
+    });
+  </script>
 
 </body>
 </html>

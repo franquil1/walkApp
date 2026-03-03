@@ -31,12 +31,6 @@ urlpatterns = [
 
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(
         template_name='auth-forgot_password/password_reset_complete.html'), name='password_reset_complete'),
-
-
-    # ============================
-    # PERFIL DE USUARIO
-    # ============================
-    path('perfil_usuario/', views.perfil_usuario, name='perfil_usuario'),
     
 
     # ============================
@@ -47,5 +41,18 @@ urlpatterns = [
     path('rutas_admin/', views.admin_rutas, name='admin_rutas'),
     path('reportes/', views.admin_reportes, name='admin_reportes'),
     path('usuarios/', views.admin_usuarios, name='admin_usuarios'),
+    
+    # ============================
+    # VISTAS DE ALERTAS SOS
+    # ============================
+    path('sos/', views.enviar_sos, name='enviar_sos'),
+
+    # ============================
+    # VISTAS DE EDITAR PERFIL
+    # ============================
+    
+    path('perfil/editar/', views.editar_perfil, name='editar_perfil'),
+    path('perfil_usuario/', views.perfil_usuario, name='perfil_usuario'),
+    
 
 ]

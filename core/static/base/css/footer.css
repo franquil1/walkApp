@@ -1,119 +1,148 @@
-/* FOOTER */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    margin-top: 20px;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
+/* =========================
+   FOOTER
+========================= */
 .footer {
-  background-color: #111;
-  color: #fff;
-  padding: 40px 20px 20px;
-  font-size: 16px;
+    background-color: #111;
+    color: #fff;
+    padding: 48px 20px 20px;
+    font-size: 15px;
+    margin-top: 0;
 }
 
 .footer-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 30px;
-  max-width: 1200px;
-  margin: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .footer-column {
-  flex: 1 1 200px;
-  min-width: 180px;
+    flex: 1 1 180px;
+    min-width: 150px;
 }
 
 .footer-column h3 {
-  border-bottom: 2px solid green;
-  padding-bottom: 5px;
-  margin-bottom: 10px;
-  color: white;
+    border-bottom: 2px solid #00b341;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    color: #fff;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .footer-column ul {
-  list-style: none;
-  padding: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.footer-column li,
+.footer-column li {
+    margin: 8px 0;
+    color: rgba(255,255,255,0.75);
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.footer-column li:hover {
+    color: #00ff37;
+    cursor: default;
+}
+
 .footer-column p {
-  margin: 6px 0;
+    margin: 6px 0;
+    color: rgba(255,255,255,0.75);
+    font-size: 0.9rem;
+}
+
+/* Columna QR centrada */
+.footer-column--qr {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .qr-code {
-  width: 100px;
-  height: 100px;
-  margin: 10px 0;
+    width: 100px;
+    height: 100px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 3px solid rgba(255,255,255,0.15);
 }
 
+/* Links redes sociales */
+.footer-link {
+    text-decoration: none;
+    color: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+    color: #00ff37;
+}
+
+.footer-link i {
+    font-size: 1.1rem;
+}
+
+/* Línea inferior */
 .footer-bottom {
-  text-align: center;
-  padding-top: 20px;
-  font-size: 14px;
-  border-top: 1px solid #333;
-  margin-top: 40px;
+    text-align: center;
+    padding-top: 20px;
+    margin-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
 }
 
-/* ACCESIBILIDAD */
-a:focus-visible,
-button:focus-visible {
-  outline: 2px solid #00ff37;
-  outline-offset: 2px;
+/* Accesibilidad */
+.footer a:focus-visible,
+.footer button:focus-visible {
+    outline: 2px solid #00ff37;
+    outline-offset: 2px;
 }
 
-a img{
-  width: 30px;
-  height: auto;
-}
-/* RESPONSIVE */
+/* =========================
+   RESPONSIVE
+========================= */
 @media (max-width: 768px) {
-  .footer-links,
-  .qr-container {
-    flex: 1 1 45%;
-    text-align: center;
-    margin-top: 20px;
-  }
+    .footer-container {
+        gap: 24px;
+    }
+
+    .footer-column {
+        flex: 1 1 45%;
+    }
 }
 
-@media (max-width: 576px) {
-  .footer {
-    padding: 40px 20px;
-  }
+@media (max-width: 520px) {
+    .footer {
+        padding: 36px 16px 16px;
+    }
 
-  .footer-row {
-    gap: 30px;
-  }
+    .footer-column {
+        flex: 1 1 100%;
+        text-align: center;
+    }
 
-  .footer-links,
-  .qr-container {
-    flex: 1 1 100%;
-    text-align: center;
-    margin-top: 30px;
-  }
+    .footer-column ul {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-  .nav-logo-qr {
-    height: 80px;
-  }
+    .footer-link {
+        justify-content: center;
+    }
 
-  .footer-links h4,
-  .footer-links p,
-  .footer-links a {
-    margin: 5px auto;
-  }
-
-  .footer-links img {
-    margin: 0 auto;
-  }
-}
-.a{
-  text-decoration: none;
-  color: white;
-}
-.a:hover{
-  color: #00ff37;
+    .footer-column--qr {
+        align-items: center;
+    }
 }

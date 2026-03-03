@@ -2,66 +2,238 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Perfil de Usuario | WalkUp</title>
-    <link rel="stylesheet" href="{% static 'profile/css/perfil.css' %}">
-    <link rel="stylesheet" href="{% static 'base/css/navbar.css' %}">
-      <link rel="stylesheet" href="{% static 'base/css/footer.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil de {{ usuario.username }} | Walk App</title>
+  <link rel="stylesheet" href="{% static 'profile/css/perfil.css' %}">
+  <link rel="stylesheet" href="{% static 'base/css/navbar.css' %}">
+  <link rel="stylesheet" href="{% static 'base/css/footer.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
+
 {% include 'base/navbar.html' %}
+
 <body>
-    
-    <div class="perfil-container">
-        <div class="perfil-card">
-            <div class="perfil-header">
-                <div class="foto-perfil">
-    <img 
-        src="{% if usuario.profile.foto %}{{ usuario.profile.foto.url }}{% else %}{% static 'images/home_imgs/usuario.png' %}{% endif %}" 
-        alt="Foto de perfil">
-</div>
-                <div class="datos-usuario">
-                    <h1><i class="fas fa-user-circle"></i> {{ usuario.username }}</h1>
-                    <p><i class="fas fa-route"></i> <strong>Total de kilómetros recorridos:</strong> {{ total_km }} km</p>
-                    <p><i class="fas fa-clock"></i> <strong>Total de horas de caminata:</strong> {{ total_horas }} h</p>
-                </div>
-            </div>
 
-            <div class="seccion">
-                <h2><i class="fas fa-shoe-prints"></i> Rutas Recorridas</h2>
-                <ul class="lista-rutas">
-                    {% for ruta in rutas_recorridas %}
-                        <li>
-                            <i class="fas fa-map-marked-alt"></i>
-                            <strong>{{ ruta.ruta.nombre_ruta }}</strong> – {{ ruta.ruta.longitud }} km – {{ ruta.ruta.duracion_estimada }}
-                            <span class="fecha">({{ ruta.fecha|date:"d/m/Y" }})</span>
-                        </li>
-                    {% empty %}
-                        <li class="vacio">No has recorrido rutas aún.</li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            <div class="seccion">
-                <h2><i class="fas fa-heart"></i> Mis Rutas Favoritas</h2>
-                {% if rutas_favoritas %}
-                    <ul class="lista-favoritas">
-                        {% for ruta in rutas_favoritas %}
-                            <li class="favorita-item">
-                                <i class="fas fa-mountain"></i> 
-                                <strong>{{ ruta.nombre_ruta }}</strong> – {{ ruta.ubicacion }}
-                                <a href="{% url 'quitar_favorita' ruta.id %}" class="btn-quitar">
-                                    <i class="fas fa-times-circle"></i> Quitar
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="vacio">No has marcado rutas como favoritas todavía.</p>
-                {% endif %}
-            </div>
+  {% if messages %}
+    <div class="toast-stack">
+      {% for message in messages %}
+        <div class="toast toast--{{ message.tags }}">
+          <i class="fas {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'error' %}fa-circle-xmark{% else %}fa-circle-info{% endif %}"></i>
+          <span>{{ message }}</span>
+          <button onclick="this.parentElement.remove()"><i class="fas fa-xmark"></i></button>
         </div>
+      {% endfor %}
     </div>
-</body>
+  {% endif %}
+
+  <div class="perfil-wrapper">
+
+    <!-- ── HERO ── -->
+    <div class="perfil-hero">
+      <div class="hero-bg-pattern"></div>
+      <div class="hero-inner">
+
+        <!-- Avatar -->
+        <div class="perfil-avatar">
+          <img
+            src="{% if perfil.foto %}{{ perfil.foto.url }}{% else %}{% static 'images/home_imgs/usuario.png' %}{% endif %}"
+            alt="Foto de {{ usuario.username }}"
+          >
+          <div class="avatar-online"></div>
+        </div>
+
+        <!-- Info principal -->
+        <div class="perfil-hero-info">
+          <h1>
+            {{ usuario.get_full_name|default:usuario.username }}
+            {% if usuario.is_superuser %}<span class="badge-admin">Admin</span>{% endif %}
+          </h1>
+          <p class="perfil-username">@{{ usuario.username }}</p>
+          {% if usuario.email %}
+            <p class="perfil-email"><i class="fas fa-envelope"></i> {{ usuario.email }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Botón editar -->
+        <a href="{% url 'users:editar_perfil' %}" class="btn-editar-hero">
+          <i class="fas fa-pencil"></i> Editar perfil
+        </a>
+
+      </div>
+
+      <!-- Stats rápidas -->
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-val">{{ total_km|floatformat:1 }}</span>
+          <span class="hero-stat-label">km recorridos</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-val">{{ total_horas|floatformat:1 }}</span>
+          <span class="hero-stat-label">horas caminando</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-val">{{ rutas_recorridas|length }}</span>
+          <span class="hero-stat-label">rutas completadas</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-val">{{ rutas_favoritas|length }}</span>
+          <span class="hero-stat-label">favoritas</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONTENIDO ── -->
+    <div class="perfil-body">
+
+      <!-- Columna izquierda -->
+      <div class="perfil-col-left">
+
+        <!-- Datos personales -->
+        <div class="perfil-card">
+          <div class="card-header">
+            <i class="fas fa-id-card"></i>
+            <h2>Información personal</h2>
+          </div>
+          <div class="card-body">
+            <div class="dato-item">
+              <span class="dato-label">Nombre completo</span>
+              <span class="dato-valor">{{ usuario.get_full_name|default:"—" }}</span>
+            </div>
+            <div class="dato-item">
+              <span class="dato-label">Usuario</span>
+              <span class="dato-valor">@{{ usuario.username }}</span>
+            </div>
+            <div class="dato-item">
+              <span class="dato-label">Correo</span>
+              <span class="dato-valor">{{ usuario.email|default:"—" }}</span>
+            </div>
+            <div class="dato-item">
+              <span class="dato-label">Miembro desde</span>
+              <span class="dato-valor">{{ usuario.date_joined|date:"d/m/Y" }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contacto de emergencia SOS -->
+        <div class="perfil-card perfil-card--sos">
+          <div class="card-header">
+            <i class="fas fa-shield-heart"></i>
+            <h2>Contacto de Emergencia</h2>
+          </div>
+          <div class="card-body">
+            {% if perfil.contacto_emergencia_nombre or perfil.contacto_emergencia_telefono %}
+              <div class="sos-contacto">
+                <div class="sos-contacto-icon"><i class="fas fa-person"></i></div>
+                <div>
+                  <strong>{{ perfil.contacto_emergencia_nombre|default:"Sin nombre" }}</strong>
+                  <p>
+                    {% if perfil.contacto_emergencia_telefono %}
+                      <i class="fa-brands fa-whatsapp"></i> +{{ perfil.contacto_emergencia_telefono }}
+                    {% else %}
+                      Sin teléfono registrado
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+              <div class="sos-estado sos-estado--ok">
+                <i class="fas fa-circle-check"></i> SOS configurado correctamente
+              </div>
+            {% else %}
+              <div class="sos-estado sos-estado--warn">
+                <i class="fas fa-triangle-exclamation"></i>
+                No tienes contacto de emergencia configurado
+              </div>
+              <a href="{% url 'users:editar_perfil' %}?tab=sos" class="btn-config-sos">
+                <i class="fas fa-plus"></i> Configurar ahora
+              </a>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Columna derecha -->
+      <div class="perfil-col-right">
+
+        <!-- Rutas recorridas -->
+        <div class="perfil-card">
+          <div class="card-header">
+            <i class="fas fa-shoe-prints"></i>
+            <h2>Rutas Recorridas</h2>
+            <span class="card-badge">{{ rutas_recorridas|length }}</span>
+          </div>
+          <div class="card-body">
+            {% if rutas_recorridas %}
+              <ul class="lista-rutas">
+                {% for ruta in rutas_recorridas %}
+                  <li class="ruta-item">
+                    <div class="ruta-item-icon"><i class="fas fa-map-marked-alt"></i></div>
+                    <div class="ruta-item-info">
+                      <strong>{{ ruta.ruta.nombre_ruta }}</strong>
+                      <span>{{ ruta.ruta.longitud }} km · {{ ruta.ruta.duracion_estimada|default:"—" }}</span>
+                    </div>
+                    <span class="ruta-fecha">{{ ruta.fecha|date:"d/m/Y" }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <div class="estado-vacio">
+                <i class="fas fa-map"></i>
+                <p>No has recorrido rutas aún.</p>
+                <a href="{% url 'rutas' %}">Explorar rutas</a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Rutas favoritas -->
+        <div class="perfil-card">
+          <div class="card-header">
+            <i class="fas fa-heart"></i>
+            <h2>Mis Favoritas</h2>
+            <span class="card-badge card-badge--rojo">{{ rutas_favoritas|length }}</span>
+          </div>
+          <div class="card-body">
+            {% if rutas_favoritas %}
+              <ul class="lista-rutas">
+                {% for ruta in rutas_favoritas %}
+                  <li class="ruta-item">
+                    <div class="ruta-item-icon ruta-item-icon--fav"><i class="fas fa-mountain"></i></div>
+                    <div class="ruta-item-info">
+                      <strong>{{ ruta.nombre_ruta }}</strong>
+                      <span>{{ ruta.ubicacion|default:"—" }}</span>
+                    </div>
+                    <a href="{% url 'quitar_favorita' ruta.id %}" class="btn-quitar" title="Quitar favorita">
+                      <i class="fas fa-times"></i>
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <div class="estado-vacio">
+                <i class="fas fa-heart"></i>
+                <p>No tienes favoritas todavía.</p>
+                <a href="{% url 'rutas' %}">Explorar rutas</a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 {% include 'base/footer.html' %}
+
+<script>
+  // Abrir tab SOS si viene de ?tab=sos
+  document.querySelectorAll('.toast').forEach(t => setTimeout(() => t.remove(), 5000));
+</script>
+
+</body>
 </html>

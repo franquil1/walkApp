@@ -12,6 +12,7 @@ urlpatterns = [
     path('juegos/', include('games.urls')),
     path('', include('routes.urls')),
     path('', include('ranking.urls')),
+    path('rutas/', include('routes.urls')),
 ]
 
 # Servir archivos media en desarrollo

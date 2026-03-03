@@ -1,685 +1,537 @@
-/* ===== PERFIL PREMIUM - SENDERISMO POPAYÁN ===== */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap');
-
-/* ======================================================
-   RESET GLOBAL + TIPOGRAFÍA
-====================================================== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* ================================================
+   perfil.css — Walk App
+   ================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-    /* Paleta verde natural */
-    --verde-bosque: #165024;
-    --verde-medio: #2c7c40;
-    --verde-claro: #58b480;
-    --verde-brillante: #58c34a;
-    --verde-agua: #49c241;
-    --blanco-nube: #f5f9f2;
-    --gris-montaña: #5a6c57;
-    
-    /* Efectos */
-    --sombra-suave: 0 10px 40px rgba(45, 80, 22, 0.12);
-    --sombra-intensa: 0 20px 60px rgba(45, 80, 22, 0.2);
-    --sombra-flotante: 0 25px 70px rgba(74, 124, 44, 0.25);
-    --radio: 20px;
-    --transicion: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --verde:       #22c55e;
+  --verde-dark:  #16a34a;
+  --verde-light: #dcfce7;
+  --rojo:        #ef4444;
+  --rojo-light:  #fee2e2;
+  --texto:       #0f172a;
+  --gris:        #64748b;
+  --gris-light:  #f1f5f9;
+  --borde:       #e2e8f0;
+  --blanco:      #ffffff;
+  --radio:       16px;
+  --sombra:      0 2px 16px rgba(0,0,0,0.07);
 }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, rgba(0, 179, 65, 0.05) 0%, rgba(0, 230, 84, 0.03) 50%, rgba(0, 179, 65, 0.05) 100%), 
-                url(../../profile/images/Wallpaper_Rutas.png) center center fixed;
-    background-size: cover;
-    background-attachment: fixed;
-    color: #333;
-    font-family: 'Poppins', sans-serif;
-    min-height: 100vh;
-    position: relative;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--gris-light);
+  color: var(--texto);
+  min-height: 100vh;
 }
 
-/* ======================================================
-   CONTENEDOR GENERAL CON ANIMACIÓN
-====================================================== */
-.perfil-container {
-    max-width: 1200px;
-    margin: 140px auto 50px;
-    padding: 30px;
-    animation: deslizarEntrada 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    z-index: 1;
+/* ── Wrapper ──────────────────────────────────── */
+.perfil-wrapper {
+  max-width: 1100px;
+  margin: 90px auto 60px;
+  padding: 0 16px;
 }
 
-@keyframes deslizarEntrada {
-    from { 
-        opacity: 0; 
-        transform: translateY(50px) scale(0.95);
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0) scale(1);
-    }
+/* ════════════════════════════════════════════════
+   HERO
+════════════════════════════════════════════════ */
+.perfil-hero {
+  background: linear-gradient(135deg, #0f2027 0%, #1a3a2a 50%, #16a34a 100%);
+  border-radius: 22px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  position: relative;
 }
 
-/* ======================================================
-   CARD PRINCIPAL CON GLASSMORPHISM
-====================================================== */
+.hero-bg-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 85% 15%, rgba(34,197,94,0.2) 0%, transparent 50%),
+    radial-gradient(circle at 15% 85%, rgba(0,0,0,0.25) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 36px 36px 24px;
+  flex-wrap: wrap;
+}
+
+/* Avatar */
+.perfil-avatar {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.perfil-avatar img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255,255,255,0.2);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+}
+
+.avatar-online {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  background: var(--verde);
+  border-radius: 50%;
+  border: 3px solid #0f2027;
+}
+
+/* Info hero */
+.perfil-hero-info {
+  flex: 1;
+  min-width: 180px;
+}
+
+.perfil-hero-info h1 {
+  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.badge-admin {
+  font-size: 0.65rem;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.25);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.perfil-username {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.88rem;
+  margin-bottom: 4px;
+}
+
+.perfil-email {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Botón editar */
+.btn-editar-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+.btn-editar-hero:hover {
+  background: rgba(255,255,255,0.22);
+  border-color: rgba(255,255,255,0.45);
+}
+
+/* Stats bar */
+.hero-stats {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 18px 36px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.hero-stat {
+  flex: 1;
+  text-align: center;
+}
+
+.hero-stat-val {
+  display: block;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.hero-stat-label {
+  display: block;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 600;
+}
+
+.hero-stat-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255,255,255,0.12);
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════
+   BODY — 2 columnas
+════════════════════════════════════════════════ */
+.perfil-body {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.perfil-col-left,
+.perfil-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Cards ────────────────────────────────────── */
 .perfil-card {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(245, 249, 242, 0.92));
-    backdrop-filter: blur(15px);
-    padding: 45px;
-    border-radius: 25px;
-    box-shadow: var(--sombra-suave);
-    border: 3px solid rgba(90, 195, 74, 0.2);
-    position: relative;
-    overflow: hidden;
-    transition: var(--transicion);
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+  border: 1px solid var(--borde);
 }
 
-/* Borde superior animado */
-.perfil-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: linear-gradient(90deg, var(--verde-bosque), var(--verde-medio), var(--verde-brillante), var(--verde-claro));
-    background-size: 300% 100%;
-    animation: moverGradiente 4s linear infinite;
+.perfil-card--sos {
+  border-color: #fecdd3;
 }
 
-@keyframes moverGradiente {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 300% 50%; }
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--borde);
+  background: #fafafa;
 }
 
-.perfil-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--sombra-flotante);
-    border-color: rgba(82, 195, 74, 0.4);
+.card-header i {
+  color: var(--verde-dark);
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
 }
 
-/* Decoración de fondo sutil */
-.perfil-card::after {
-    content: '🏔️';
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    font-size: 8rem;
-    opacity: 0.03;
-    pointer-events: none;
-    animation: flotar 6s ease-in-out infinite;
+.perfil-card--sos .card-header i { color: #dc2626; }
+
+.card-header h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--texto);
+  flex: 1;
 }
 
-@keyframes flotar {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(5deg); }
+.card-badge {
+  background: var(--verde-light);
+  color: var(--verde-dark);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
 }
 
-/* ======================================================
-   ENCABEZADO DEL PERFIL - DISEÑO MODERNO
-====================================================== */
-.perfil-header {
-    display: flex;
-    align-items: center;
-    gap: 35px;
-    padding-bottom: 30px;
-    border-bottom: 3px solid rgba(74, 195, 80, 0.2);
-    margin-bottom: 40px;
-    position: relative;
-    animation: aparecer 0.8s ease-out 0.2s backwards;
+.card-badge--rojo {
+  background: var(--rojo-light);
+  color: var(--rojo);
 }
 
-@keyframes aparecer {
-    from { opacity: 0; transform: translateX(-30px); }
-    to { opacity: 1; transform: translateX(0); }
+.card-body {
+  padding: 18px 20px;
 }
 
-/* Foto del usuario con efecto premium */
-.foto-perfil {
-    position: relative;
+/* ── Datos personales ─────────────────────────── */
+.dato-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gris-light);
 }
 
-.foto-perfil img {
-    width: 140px;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 5px solid var(--verde-medio);
-    background: linear-gradient(145deg, #f1f1f1, #e8e8e8);
-    box-shadow: 0 8px 25px rgba(44, 124, 64, 0.3);
-    transition: var(--transicion);
-    position: relative;
-    z-index: 2;
+.dato-item:last-child { border-bottom: none; }
+
+.dato-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gris);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Anillo pulsante alrededor de la foto */
-.foto-perfil::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: -8px;
-    right: -8px;
-    bottom: -8px;
-    border-radius: 50%;
-    border: 3px solid var(--verde-brillante);
-    opacity: 0;
-    animation: pulsarAnillo 3s ease-in-out infinite;
+.dato-valor {
+  font-size: 0.92rem;
+  color: var(--texto);
+  font-weight: 500;
 }
 
-@keyframes pulsarAnillo {
-    0%, 100% { opacity: 0; transform: scale(1); }
-    50% { opacity: 0.6; transform: scale(1.1); }
+/* ── SOS Card ─────────────────────────────────── */
+.sos-contacto {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
-.foto-perfil:hover img {
-    transform: scale(1.08) rotate(3deg);
-    border-color: var(--verde-brillante);
-    box-shadow: 0 12px 35px rgba(62, 168, 96, 0.5);
+.sos-contacto-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--rojo-light);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rojo);
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
-/* Badge de verificación */
-.foto-perfil::after {
-    content: '✏️';
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    background: linear-gradient(135deg, var(--verde-medio), var(--verde-brillante));
-    color: white;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    font-weight: bold;
-    border: 3px solid white;
-    box-shadow: 0 3px 10px rgba(74, 124, 44, 0.4);
-    z-index: 3;
+.sos-contacto strong {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--texto);
+  margin-bottom: 2px;
 }
 
-/* Datos del usuario */
-.datos-usuario {
-    flex: 1;
+.sos-contacto p {
+  font-size: 0.8rem;
+  color: var(--gris);
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.datos-usuario h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--verde-bosque);
-    margin-bottom: 12px;
-    font-family: 'Montserrat', sans-serif;
-    letter-spacing: -0.5px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.sos-contacto p .fa-whatsapp { color: #25d366; }
+
+.sos-estado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
-/* Emoji decorativo en el nombre */
-.datos-usuario h1::before {
-    content: '🥾';
-    font-size: 1.8rem;
-    animation: rebotar 2s ease-in-out infinite;
+.sos-estado--ok {
+  background: var(--verde-light);
+  color: var(--verde-dark);
 }
 
-@keyframes rebotar {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+.sos-estado--warn {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  margin-bottom: 12px;
 }
 
-.datos-usuario p {
-    font-size: 1rem;
-    color: var(--gris-montaña);
-    line-height: 1.8;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.btn-config-sos {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  background: var(--rojo);
+  color: #fff;
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
 }
 
-.datos-usuario p::before {
-    content: '📍';
-    font-size: 1.1rem;
+.btn-config-sos:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
 }
 
-/* Estadísticas rápidas en el header */
-.stats-rapidas {
-    display: flex;
-    gap: 20px;
-    margin-top: 15px;
+/* ── Lista de rutas ───────────────────────────── */
+.lista-rutas {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.stat-item {
-    background: linear-gradient(135deg, var(--verde-agua), rgba(184, 217, 159, 0.5));
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--verde-bosque);
-    box-shadow: 0 3px 10px rgba(107, 168, 62, 0.2);
-    transition: var(--transicion);
+.ruta-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 10px;
+  border-radius: 10px;
+  transition: background 0.15s;
 }
 
-.stat-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(107, 168, 62, 0.3);
+.ruta-item:hover { background: var(--gris-light); }
+
+.ruta-item-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--verde-light);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--verde-dark);
+  font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
-/* ======================================================
-   SECCIONES DEL PERFIL
-====================================================== */
-.seccion {
-    margin-top: 45px;
-    animation: deslizarArriba 0.6s ease-out backwards;
+.ruta-item-icon--fav { background: var(--rojo-light); color: var(--rojo); }
+
+.ruta-item-info {
+  flex: 1;
+  min-width: 0;
 }
 
-.seccion:nth-child(2) { animation-delay: 0.3s; }
-.seccion:nth-child(3) { animation-delay: 0.4s; }
-.seccion:nth-child(4) { animation-delay: 0.5s; }
-
-@keyframes deslizarArriba {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+.ruta-item-info strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.seccion h2 {
-    font-size: 1.6rem;
-    color: var(--verde-bosque);
-    margin-bottom: 20px;
-    border-left: 5px solid var(--verde-medio);
-    padding-left: 18px;
-    font-weight: 700;
-    font-family: 'Montserrat', sans-serif;
-    position: relative;
-    display: inline-block;
+.ruta-item-info span {
+  font-size: 0.77rem;
+  color: var(--gris);
 }
 
-/* Línea decorativa animada */
-.seccion h2::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 18px;
-    width: 0;
-    height: 3px;
-    background: var(--verde-brillante);
-    transition: var(--transicion);
+.ruta-fecha {
+  font-size: 0.74rem;
+  color: var(--gris);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.seccion:hover h2::after {
-    width: calc(100% - 18px);
-}
-
-/* ======================================================
-   LISTAS DE RUTAS & FAVORITOS - ESTILO MODERNO
-====================================================== */
-.lista-rutas,
-.lista-favoritas {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.lista-rutas li,
-.favorita-item {
-    background: linear-gradient(135deg, #ffffff, rgba(245, 249, 242, 0.8));
-    backdrop-filter: blur(5px);
-    border: 2px solid rgba(139, 195, 74, 0.15);
-    padding: 18px 22px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: var(--transicion);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
-/* Efecto de hover suave */
-.lista-rutas li::before,
-.favorita-item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 0;
-    background: linear-gradient(90deg, rgba(139, 195, 74, 0.1), transparent);
-    transition: var(--transicion);
-}
-
-.lista-rutas li:hover::before,
-.favorita-item:hover::before {
-    width: 100%;
-}
-
-.lista-rutas li:hover,
-.favorita-item:hover {
-    background: linear-gradient(135deg, #f0fff7, rgba(240, 255, 247, 0.9));
-    border-color: var(--verde-medio);
-    box-shadow: 0 8px 25px rgba(74, 124, 44, 0.2);
-    transform: translateX(8px);
-}
-
-/* Contenido del item */
-.item-content {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex: 1;
-}
-
-/* Iconos mejorados */
-.lista-rutas li i,
-.favorita-item i {
-    font-size: 1.5rem;
-    color: var(--verde-medio);
-    transition: var(--transicion);
-    filter: drop-shadow(0 2px 4px rgba(74, 124, 44, 0.2));
-}
-
-.lista-rutas li:hover i,
-.favorita-item:hover i {
-    color: var(--verde-brillante);
-    transform: scale(1.2) rotate(5deg);
-}
-
-/* Texto de la ruta */
-.ruta-nombre {
-    font-weight: 600;
-    color: var(--verde-bosque);
-    font-size: 1.05rem;
-}
-
-/* Fecha con estilo */
-.fecha {
-    font-size: 0.85rem;
-    color: var(--gris-montaña);
-    background: rgba(184, 217, 159, 0.2);
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-weight: 500;
-}
-
-/* Texto cuando no hay elementos */
-.vacio {
-    padding: 30px;
-    font-style: italic;
-    color: #999;
-    text-align: center;
-    background: rgba(184, 217, 159, 0.1);
-    border-radius: 12px;
-    font-size: 1rem;
-}
-
-.vacio::before {
-    content: '🌿';
-    display: block;
-    font-size: 3rem;
-    margin-bottom: 10px;
-    opacity: 0.3;
-}
-
-/* ======================================================
-   BOTÓN QUITAR - ESTILO PREMIUM
-====================================================== */
 .btn-quitar {
-    background: linear-gradient(135deg, #ff5252, #ff1744);
-    padding: 8px 18px;
-    font-size: 0.9rem;
-    border-radius: 20px;
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    transition: var(--transicion);
-    box-shadow: 0 4px 12px rgba(255, 82, 82, 0.3);
-    border: 2px solid transparent;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    position: relative;
-    overflow: hidden;
+  width: 30px;
+  height: 30px;
+  background: var(--rojo-light);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rojo);
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+  flex-shrink: 0;
 }
 
-.btn-quitar::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: translate(-50%, -50%);
-    transition: width 0.5s, height 0.5s;
+.btn-quitar:hover { background: #fca5a5; }
+
+/* ── Estado vacío ─────────────────────────────── */
+.estado-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 20px;
+  gap: 10px;
+  color: var(--gris);
+  text-align: center;
 }
 
-.btn-quitar:hover::before {
-    width: 300px;
-    height: 300px;
+.estado-vacio i { font-size: 2rem; opacity: 0.3; }
+
+.estado-vacio p { font-size: 0.88rem; }
+
+.estado-vacio a {
+  font-size: 0.84rem;
+  color: var(--verde-dark);
+  font-weight: 600;
+  text-decoration: none;
 }
 
-.btn-quitar:hover {
-    background: linear-gradient(135deg, #d32f2f, #c62828);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 18px rgba(255, 23, 68, 0.5);
-    border-color: rgba(255, 255, 255, 0.3);
+.estado-vacio a:hover { text-decoration: underline; }
+
+/* ── Toasts ───────────────────────────────────── */
+.toast-stack {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 340px;
 }
 
-.btn-quitar:active {
-    transform: translateY(-1px);
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  animation: toastIn 0.3s ease;
 }
 
-/* ======================================================
-   BADGE DE DIFICULTAD Y ETIQUETAS
-====================================================== */
-.badge-dificultad {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-left: 10px;
+.toast span { flex: 1; }
+.toast button { background: none; border: none; cursor: pointer; color: inherit; opacity: 0.5; font-size: 0.8rem; }
+.toast--success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.toast--error   { background: #fff1f2; color: #9f1239; border: 1px solid #fecdd3; }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-.badge-dificultad.facil {
-    background: linear-gradient(135deg, #81c784, #66bb6a);
-    color: white;
-    box-shadow: 0 3px 8px rgba(129, 199, 132, 0.3);
-}
-
-.badge-dificultad.moderado {
-    background: linear-gradient(135deg, #ffd54f, #ffca28);
-    color: #5a4d00;
-    box-shadow: 0 3px 8px rgba(255, 213, 79, 0.3);
-}
-
-.badge-dificultad.dificil {
-    background: linear-gradient(135deg, #e57373, #ef5350);
-    color: white;
-    box-shadow: 0 3px 8px rgba(229, 115, 115, 0.3);
-}
-
-/* ======================================================
-   GRID DE ESTADÍSTICAS (OPCIONAL)
-====================================================== */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin: 25px 0;
-}
-
-.stat-card {
-    background: linear-gradient(135deg, #ffffff, rgba(245, 249, 242, 0.9));
-    padding: 25px;
-    border-radius: 18px;
-    text-align: center;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-    border: 2px solid rgba(139, 195, 74, 0.15);
-    transition: var(--transicion);
-    position: relative;
-    overflow: hidden;
-}
-
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--verde-medio), var(--verde-brillante));
-    transform: scaleX(0);
-    transition: var(--transicion);
-    transform-origin: left;
-}
-
-.stat-card:hover::before {
-    transform: scaleX(1);
-}
-
-.stat-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 12px 35px rgba(74, 124, 44, 0.2);
-    border-color: var(--verde-medio);
-}
-
-.stat-card h3 {
-    font-size: 0.9rem;
-    color: var(--gris-montaña);
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-}
-
-.stat-card p {
-    font-size: 2.2rem;
-    color: var(--verde-bosque);
-    font-weight: 800;
-    font-family: 'Montserrat', sans-serif;
-}
-
-/* ======================================================
-   RESPONSIVE MEJORADO
-====================================================== */
-@media (max-width: 992px) {
-    .perfil-container {
-        margin-top: 120px;
-        padding: 25px;
-    }
-
-    .perfil-card {
-        padding: 35px;
-    }
-}
-
+/* ── Responsive ───────────────────────────────── */
 @media (max-width: 768px) {
-    .perfil-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 25px;
-    }
+  .perfil-wrapper { margin-top: 75px; }
 
-    .datos-usuario h1 {
-        justify-content: center;
-        font-size: 1.8rem;
-    }
+  .hero-inner { padding: 24px 20px 16px; gap: 16px; }
 
-    .datos-usuario p {
-        justify-content: center;
-    }
+  .perfil-avatar img { width: 72px; height: 72px; }
 
-    .stats-rapidas {
-        justify-content: center;
-    }
+  .perfil-hero-info h1 { font-size: 1.2rem; }
 
-    .foto-perfil img {
-        width: 120px;
-        height: 120px;
-    }
+  .btn-editar-hero { width: 100%; justify-content: center; }
 
-    .perfil-card {
-        padding: 30px;
-    }
+  .hero-stats { padding: 14px 20px; gap: 0; }
+  .hero-stat-val { font-size: 1.2rem; }
 
-    .seccion h2 {
-        font-size: 1.4rem;
-    }
+  .perfil-body {
+    grid-template-columns: 1fr;
+  }
 
-    .lista-rutas li,
-    .favorita-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-
-    .item-content {
-        width: 100%;
-    }
-
-    .btn-quitar {
-        width: 100%;
-        text-align: center;
-    }
+  .toast-stack { right: 10px; left: 10px; max-width: none; }
 }
 
 @media (max-width: 480px) {
-    .perfil-container {
-        margin-top: 100px;
-        padding: 15px;
-    }
-
-    .perfil-card {
-        padding: 25px;
-    }
-
-    .datos-usuario h1 {
-        font-size: 1.5rem;
-    }
-
-    .seccion h2 {
-        font-size: 1.2rem;
-    }
-
-    .foto-perfil img {
-        width: 100px;
-        height: 100px;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* ======================================================
-   ANIMACIONES DE ACCESIBILIDAD
-====================================================== */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* Mejora de foco para navegación por teclado */
-.btn-quitar:focus,
-.lista-rutas li:focus,
-.favorita-item:focus {
-    outline: 3px solid var(--verde-brillante);
-    outline-offset: 4px;
+  .hero-stats { flex-wrap: wrap; gap: 12px; }
+  .hero-stat-divider { display: none; }
+  .hero-stat { flex: 1 1 40%; }
 }

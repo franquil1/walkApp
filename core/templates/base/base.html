@@ -15,6 +15,7 @@
   {% block extra_css %}{% endblock %}
 </head>
 
+<script src="{% static 'js/buscador.js' %}"></script>
 <body>
 
   <!-- ================= NAVBAR ENCAPSULADO ================= -->
@@ -33,7 +34,7 @@
   <script src="{% static '/home/javascripts/home.js' %}"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   {% block extra_js %}{% endblock %}
-
+  
   <!-- ================= FOOTER ================= -->
   {% include 'base/footer.html' %}
 </body>
