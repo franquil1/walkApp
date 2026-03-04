@@ -1,9 +1,13 @@
 from django.shortcuts import render,redirect
-
 from .models import Publicacion, Comentario
 from .forms import PublicacionForm, ComentarioForm
 from django.contrib import messages
-
+# ===============================================
+# Api Rest
+# ===============================================
+from rest_framework import serializers
+from .serializers import PublicacionSerializer, ComentarioSerializer
+from rest_framework.permissions import IsAuthenticated
 
 def mostrarComunidad(request):
     publicaciones = Publicacion.objects.all().order_by('-fecha_publicacion')
@@ -50,3 +54,14 @@ def mostrarComunidad(request):
         'comentario_form': ComentarioForm(),
     }
     return render(request, 'comunidad/comunidad.html', context)
+
+# ========================================
+# view sets 
+# ========================================
+
+class PublicacionViewSet(viewsets.ModelViewSet):
+    # definiciond e datos y el orden en que se van a mostrar
+    queryset = post.objects.all().order_by('-created_at')
+    serializer_class = PostSerialier
+    permission_classes = [IsAuthenticated]
+    

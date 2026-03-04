@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'routes',
     'games',
     'ranking',
+    'rest_framework',
 
 ]
 
