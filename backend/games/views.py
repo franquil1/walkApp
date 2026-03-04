@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 import json
 
-from .models import EstadisticasUsuarioTrivia, HistorialJuegoTrivia
+
 
 """ ==========| SITIO DE LOS JUEGOS |=========="""
 
@@ -17,10 +17,6 @@ def mostrarJuegos(request):
 
 def mostrarMapaRoto(request):
     return render(request, 'mapa_roto/mapa_roto.html')
-
-
-
-
 
 
 
@@ -42,12 +38,7 @@ def trivia_menu(request):
     context = {}
     if request.user.is_authenticated:
         context['usuario_nombre'] = request.user.username
-        # Obtener estadísticas del usuario
-        try:
-            estadisticas = EstadisticasUsuarioTrivia.objects.get(usuario=request.user)
-            context['total_puntos'] = estadisticas.total_puntos
-        except EstadisticasUsuarioTrivia.DoesNotExist:
-            context['total_puntos'] = 0
+        context['total_puntos'] = 0
     else:
         context['usuario_nombre'] = 'Invitado'
         context['total_puntos'] = 0
@@ -80,55 +71,44 @@ def trivia_final(request):
 @require_http_methods(["POST"])
 def guardar_resultado(request):
     """
-    Endpoint para guardar los resultados del juego en la base de datos
+    Endpoint que recibe los resultados del juego pero no los persiste en BD
     """
     try:
-        # Obtener datos del POST
         data = json.loads(request.body)
         
         categoria = data.get('categoria')
         puntos = int(data.get('puntos', 0))
         respuestas_correctas = int(data.get('respuestas_correctas', 0))
         respuestas_incorrectas = int(data.get('respuestas_incorrectas', 0))
-        duracion_segundos = data.get('duracion_segundos')
-        
-        # Validar datos
-        if not categoria or categoria not in dict(HistorialJuegoTrivia.CATEGORIAS_CHOICES):
+
+        # Validar que la categoría no esté vacía
+        if not categoria:
             return JsonResponse({
                 'success': False,
                 'error': 'Categoría inválida'
             }, status=400)
-        
-        # Solo guardar si el usuario está autenticado
-        if request.user.is_authenticated:
-            # Crear registro en el historial
-            juego = HistorialJuegoTrivia.objects.create(
-                usuario=request.user,
-                categoria=categoria,
-                puntos=puntos,
-                respuestas_correctas=respuestas_correctas,
-                respuestas_incorrectas=respuestas_incorrectas,
-                duracion_segundos=duracion_segundos,
-                fecha_juego=timezone.now()
-            )
-            
-            # Las estadísticas se actualizan automáticamente por la señal
-            
-            return JsonResponse({
-                'success': True,
-                'message': 'Resultados guardados exitosamente',
-                'juego_id': juego.id,
-                'calificacion': juego.calificacion,
-                'porcentaje': juego.porcentaje_acierto
-            })
+
+        # Calcular porcentaje y calificación en memoria
+        total_preguntas = respuestas_correctas + respuestas_incorrectas
+        porcentaje = round((respuestas_correctas / total_preguntas) * 100, 1) if total_preguntas > 0 else 0
+
+        if porcentaje >= 90:
+            calificacion = 'Excelente'
+        elif porcentaje >= 70:
+            calificacion = 'Bueno'
+        elif porcentaje >= 50:
+            calificacion = 'Regular'
         else:
-            # Usuario no autenticado - solo retornar éxito sin guardar
-            return JsonResponse({
-                'success': True,
-                'message': 'Juego completado (no guardado - usuario invitado)',
-                'guest': True
-            })
-            
+            calificacion = 'Insuficiente'
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Juego completado' if request.user.is_authenticated else 'Juego completado (usuario invitado)',
+            'guest': not request.user.is_authenticated,
+            'calificacion': calificacion,
+            'porcentaje': porcentaje
+        })
+
     except json.JSONDecodeError:
         return JsonResponse({
             'success': False,
@@ -139,78 +119,34 @@ def guardar_resultado(request):
             'success': False,
             'error': str(e)
         }, status=500)
-    
+
 
 # API para obtener estadísticas del usuario
 @login_required
 def obtener_estadisticas(request):
     """
-    Endpoint para obtener las estadísticas del usuario actual
+    Endpoint que retorna estadísticas vacías sin consultar la BD
     """
-    try:
-        estadisticas = EstadisticasUsuarioTrivia.objects.get(usuario=request.user)
-        
-        # Obtener últimos 10 juegos
-        ultimos_juegos = HistorialJuegoTrivia.objects.filter(
-            usuario=request.user
-        ).order_by('-fecha_juego')[:10]
-        
-        juegos_data = [{
-            'categoria': juego.get_categoria_display(),
-            'puntos': juego.puntos,
-            'fecha': juego.fecha_juego.strftime('%d/%m/%Y %H:%M'),
-            'calificacion': juego.calificacion
-        } for juego in ultimos_juegos]
-        
-        return JsonResponse({
-            'success': True,
-            'estadisticas': {
-                'total_juegos': estadisticas.total_juegos,
-                'total_puntos': estadisticas.total_puntos,
-                'mejor_puntaje': estadisticas.mejor_puntaje,
-                'promedio_puntos': estadisticas.promedio_puntos,
-                'tasa_acierto': estadisticas.tasa_acierto_global,
-                'categoria_favorita': estadisticas.get_categoria_favorita_display() if estadisticas.categoria_favorita else 'N/A'
-            },
-            'ultimos_juegos': juegos_data
-        })
-        
-    except EstadisticasUsuarioTrivia.DoesNotExist:
-        return JsonResponse({
-            'success': True,
-            'estadisticas': {
-                'total_juegos': 0,
-                'total_puntos': 0,
-                'mejor_puntaje': 0,
-                'promedio_puntos': 0,
-                'tasa_acierto': 0,
-                'categoria_favorita': 'N/A'
-            },
-            'ultimos_juegos': []
-        })
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
-    
+    return JsonResponse({
+        'success': True,
+        'estadisticas': {
+            'total_juegos': 0,
+            'total_puntos': 0,
+            'mejor_puntaje': 0,
+            'promedio_puntos': 0,
+            'tasa_acierto': 0,
+            'categoria_favorita': 'N/A'
+        },
+        'ultimos_juegos': []
+    })
 
-# Vista opcional para ver el historial completo
+
+# Vista para el historial completo
 @login_required
 def historial_completo(request):
-    """Vista para mostrar el historial completo de juegos del usuario"""
-    juegos = HistorialJuegoTrivia.objects.filter(
-        usuario=request.user
-    ).order_by('-fecha_juego')
-    
-    try:
-        estadisticas = EstadisticasUsuarioTrivia.objects.get(usuario=request.user)
-    except EstadisticasUsuarioTrivia.DoesNotExist:
-        estadisticas = None
-    
+    """Vista de historial sin datos de BD"""
     context = {
-        'juegos': juegos,
-        'estadisticas': estadisticas
+        'juegos': [],
+        'estadisticas': None
     }
-    
     return render(request, 'html/juegos/trivia/historial.html', context)
