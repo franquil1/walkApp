@@ -5,6 +5,7 @@ from django.contrib import messages
 # ===============================================
 # Api Rest
 # ===============================================
+from rest_framework import viewsets
 from rest_framework import serializers
 from .serializers import PublicacionSerializer, ComentarioSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -61,7 +62,11 @@ def mostrarComunidad(request):
 
 class PublicacionViewSet(viewsets.ModelViewSet):
     # definiciond e datos y el orden en que se van a mostrar
-    queryset = post.objects.all().order_by('-created_at')
-    serializer_class = PostSerialier
+    queryset = Publicacion.objects.all().order_by('-fecha_publicacion')
+    serializer_class = PublicacionSerializer
     permission_classes = [IsAuthenticated]
     
+class ComentarioViewSet(viewsets.ModelViewSet):
+    queryset = Comentario.objects.all().order_by('-fecha_publicacion')
+    serializer_class = ComentarioSerializer
+    permission_classes = [IsAuthenticated]

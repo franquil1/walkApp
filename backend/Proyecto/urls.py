@@ -13,7 +13,12 @@ urlpatterns = [
     path('', include('routes.urls')),
     path('', include('ranking.urls')),
     path('rutas/', include('routes.urls')),
+    # ====================================
+    # Apis
+    # ====================================
+    path('api/community/', include('community.urls')),
 ]
+
 
 # Servir archivos media en desarrollo
 if settings.DEBUG:

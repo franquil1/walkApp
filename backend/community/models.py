@@ -25,7 +25,7 @@ class Comentario(models.Model):
     publicacion = models.ForeignKey(Publicacion, on_delete=models.CASCADE, related_name='comentarios')
     usuario = models.ForeignKey(UsuarioPersonalizado, on_delete=models.CASCADE)
     texto = models.TextField(max_length=300)
-    fecha = models.DateTimeField(auto_now_add=True)
+    fecha_publicacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.usuario.username} comentó en {self.publicacion}"
