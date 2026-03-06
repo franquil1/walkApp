@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios</title>
+    <link rel="stylesheet" href="{% static 'admin/css/viewsadmin.css'%}">
+    <link rel="stylesheet" href="{% static 'base/css/navbar.css' %}">
+</head>
+<body>
+    {% include 'base/navbar.html' %}
+
+    <h1>Usuarios Registrados</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre Completo</th>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>¿Es staff?</th>
+                <th>¿Superusuario?</th>
+                <th>Último login</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for usuario in usuarios %}
+        <tr>
+            <td data-label="ID">{{ usuario.id }}</td>
+            <td data-label="Nombre Completo">
+                {% if usuario.first_name or usuario.last_name %}
+                    {{ usuario.first_name }} {{ usuario.last_name }}
+                {% else %}
+                    <em>Sin nombre registrado</em>
+                {% endif %}
+            </td>
+            <td data-label="Usuario">{{ usuario.username }}</td>
+            <td data-label="Email">{{ usuario.email }}</td>
+            <td data-label="¿Es staff?">{{ usuario.is_staff|yesno:"Sí,No" }}</td>
+            <td data-label="¿Superusuario?">{{ usuario.is_superuser|yesno:"Sí,No" }}</td>
+            <td data-label="Último login">
+                {% if usuario.last_login %}
+                    {{ usuario.last_login|date:"d/m/Y H:i" }}
+                {% else %}
+                    <em>Nunca</em>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="7">No hay usuarios registrados.</td></tr>
+    {% endfor %}
+</tbody>
+    </table>
+</body>
+</html>

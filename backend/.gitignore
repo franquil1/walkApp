@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+
+# Archivos de entorno
+.env
+
+# Base de datos SQLite
+db.sqlite3
+
+# Archivos estáticos recolectados
+staticfiles/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db

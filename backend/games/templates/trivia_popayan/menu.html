@@ -1,0 +1,63 @@
+{% comment %} menu.html {% endcomment %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'trivia_popayan/css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'base/css/navbar.css' %}">
+    <link rel="icon" href="{% static '/images/imagenes/logo.jpg' %}" type="image/x-icon">
+    <title>¿Cuánto Sabes sobre Senderismo?</title>
+</head>
+<body>
+    <div class="game-wrapper">
+        <div class="container">
+            <header>
+                <div class="puntaje">
+                    <img src="{% static '/images/iconos/puntos.png' %}" alt="Puntos acumulados">
+                    <span class="puntos" id="puntos">0</span>
+                </div>
+                <h1>¡Desafío Senderista!</h1>
+                <div class="jugador">
+                    <span class="nombre" id="nombre">Martín</span>
+                    <img src="{% static '/images/iconos/user.png' %}" alt="Avatar del jugador">
+                </div>
+            </header>
+
+            <main class="menu">
+                <h2>Hola <span id="nombre-jugador">Martín</span></h2>
+                <p>Elige una categoría de senderismo...</p>
+                <div class="categorias">
+                    <div class="categoria" id="rutas" data-url="{% url 'trivia/juego/' %}">
+                        <img src="{%static 'trivia_popayan/images/ruta.png' %}" alt="Rutas de senderismo" class="foto-categoria">
+                        <h3>Rutas</h3>
+                    </div>
+                    <div class="categoria" id="equipo" data-url="{% url 'trivia/juego/' %}">
+                        <img src="{%static 'trivia_popayan/images/baston-de-senderismo.png' %}" alt="Equipo necesario" class="foto-categoria">
+                        <h3>Equipo</h3>
+                    </div>
+                    <div class="categoria" id="seguridad" data-url="{% url 'trivia/juego/' %}">
+                        <img src="{%static 'trivia_popayan/images/mosqueton.png' %}" alt="Consejos de seguridad" class="foto-categoria">
+                        <h3>Seguridad</h3>
+                    </div>
+                    <div class="categoria" id="flora-fauna" data-url="{% url 'trivia/juego/' %}">
+                        <img src="{%static 'trivia_popayan/images/flora-y-fauna.png' %}" alt="Flora y fauna en senderismo" class="foto-categoria">
+                        <h3>Flora y Fauna</h3>
+                    </div>
+                    <div class="categoria" id="tecnicas" data-url="{% url 'trivia/juego/' %}">
+                        <img src="{% static '/images/iconos/brujula.png' %}" alt="Técnicas de senderismo" class="foto-categoria">
+                        <h3>Técnicas</h3>
+                    </div>
+                    <div class="categoria" id="lugares" data-url="{% url 'trivia/juego/' %}">
+                        <img src="{% static '/images/iconos/firmar.png' %}" alt="Lugares icónicos" class="foto-categoria">
+                        <h3>Lugares Icónicos</h3>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+        {% include 'base/navbar.html' %}
+    <script src="{% static '/js/trivia-menu.js' %}"></script>
+</body>
+</html>
