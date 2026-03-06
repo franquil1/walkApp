@@ -1,0 +1,271 @@
+/* ================================================
+   registro.css — Walk App
+   ================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --verde:       #22c55e;
+  --verde-dark:  #16a34a;
+  --verde-light: #dcfce7;
+  --rojo:        #ef4444;
+  --texto:       #1a1a2e;
+  --gris:        #64748b;
+  --borde:       rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: url(../../auth/images/fondoCaminantes.jpg) no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
+  z-index: 0;
+}
+
+/* ── Layout ── */
+.contenedor {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 30px 16px;
+}
+
+.formulario {
+  width: 100%;
+  max-width: 420px;
+}
+
+form {
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(16px);
+  padding: 40px 36px;
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+  animation: fadeUp 0.5s ease;
+}
+
+/* ── Logo ── */
+.form-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.form-logo img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: none;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+  border: 3px solid var(--verde-light);
+}
+
+/* ── Títulos ── */
+h1 {
+  text-align: center;
+  color: var(--texto);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.form-subtitle {
+  text-align: center;
+  color: var(--gris);
+  font-size: 0.85rem;
+  margin-bottom: 24px;
+}
+
+/* ── Campos ── */
+.field-group {
+  margin-bottom: 14px;
+}
+
+.field-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gris);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+
+.field-group input[type="text"],
+.field-group input[type="email"],
+.field-group input[type="password"],
+form input[type="text"],
+form input[type="email"],
+form input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--borde);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: rgba(241,248,255,0.7);
+  transition: all 0.25s ease;
+  color: var(--texto);
+}
+
+form input:focus {
+  outline: none;
+  border-color: var(--verde);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.12);
+}
+
+/* ── Errores de campos ── */
+.form-errors {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: #9f1239;
+}
+
+.field-error i { color: #e11d48; margin-top: 1px; flex-shrink: 0; }
+
+/* ── Botón ── */
+button[type="submit"] {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--verde), var(--verde-dark));
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.35);
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(34,197,94,0.4);
+}
+
+button[type="submit"]:active { transform: translateY(0); }
+
+/* ── Links ── */
+.form-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.form-links a {
+  font-size: 0.83rem;
+  color: var(--gris);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.form-links a strong { color: var(--verde-dark); }
+.form-links a:hover  { color: var(--verde-dark); }
+
+/* ================================================
+   TOASTS
+   ================================================ */
+.toast-stack {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 16px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  animation: toastIn 0.35s ease;
+}
+
+.toast span { flex: 1; line-height: 1.4; }
+.toast-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+.toast-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.5;
+  font-size: 0.85rem;
+  padding: 2px 4px;
+  transition: opacity 0.2s;
+}
+.toast-close:hover { opacity: 1; }
+
+.toast--success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.toast--success .toast-icon { color: #16a34a; }
+.toast--error, .toast--danger { background: #fff1f2; color: #9f1239; border: 1px solid #fecdd3; }
+.toast--error .toast-icon, .toast--danger .toast-icon { color: #e11d48; }
+.toast--warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.toast--warning .toast-icon { color: #d97706; }
+.toast--info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+.toast--info .toast-icon { color: #2563eb; }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes toastOut {
+  to { opacity: 0; transform: translateY(-12px); }
+}
+
+/* ── Animación ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  form { padding: 30px 22px; }
+  h1   { font-size: 1.3rem; }
+}

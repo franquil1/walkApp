@@ -1,0 +1,216 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'rutas/css/iniciar_ruta.css' %}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="iniciar-container container py-4">
+
+  <!-- Header -->
+  <div class="ruta-header">
+    <h1><i class="fas fa-route"></i> {{ ruta.nombre_ruta }}</h1>
+    <div class="text-center">
+      <span id="gps-status" class="gps-status">
+        <i class="fas fa-satellite-dish"></i> Conectando GPS...
+      </span>
+    </div>
+  </div>
+
+  <!-- Botón SOS -->
+  <div class="btn-ayuda-wrapper">
+    <button class="btn-ayuda" id="sos-btn" onclick="activarSOS()">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>SOS</span>
+    </button>
+  </div>
+
+  <!-- Panel de Estadísticas -->
+  <div class="stats-panel">
+    <div class="row g-0">
+      <div class="col-4">
+        <div class="stat-item">
+          <i class="fas fa-ruler-horizontal stat-icon"></i>
+          <div class="stat-value" id="distancia-recorrida">0.00</div>
+          <div class="stat-label">Kilómetros</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="stat-item stat-item--mid">
+          <i class="fas fa-star stat-icon"></i>
+          <div class="stat-value" id="puntos-ganados">0</div>
+          <div class="stat-label">Puntos</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="stat-item">
+          <i class="fas fa-clock stat-icon"></i>
+          <div class="stat-value" id="tiempo-transcurrido">00:00</div>
+          <div class="stat-label">Tiempo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mapa -->
+  <div class="map-container">
+    <div id="map" style="height: 100%; width: 100%;"></div>
+  </div>
+
+  <!-- Controles -->
+  <div class="control-buttons">
+    <button id="terminar-btn" class="btn-terminar">
+      <i class="fas fa-stop-circle"></i> Terminar Ruta
+    </button>
+  </div>
+
+  <!-- Modal SOS -->
+  <div class="sos-modal" id="sos-modal">
+    <div class="sos-modal-content">
+      <div class="sos-icon-big"><i class="fas fa-exclamation-triangle"></i></div>
+      <h2>¿Necesitas ayuda?</h2>
+      <p>Se notificará a tu contacto de emergencia con tu ubicación actual.</p>
+      <div class="sos-modal-buttons">
+        <button class="btn-sos-confirm" onclick="confirmarSOS()">
+          <i class="fas fa-phone"></i> Sí, pedir ayuda
+        </button>
+        <button class="btn-sos-cancel" onclick="cerrarSOS()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debug (oculto en producción) -->
+  <div id="debug-log" style="display:none; margin-top:20px; padding:10px; background:#f5f5f5; border-radius:8px; font-family:monospace; font-size:0.8em; max-height:200px; overflow-y:auto;"></div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+  <!-- 1. Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- 2. Variables de Django — OBLIGATORIO antes de Trakeo.js -->
+  <script>
+    const rutaId             = {{ ruta.id }};
+    const rutaCoordsRaw      = '{{ ruta.coordenadas_ruta|escapejs }}';
+    const urlGuardarPosicion = '{% url "guardar_posicion" %}';
+    const urlTerminarRuta    = '{% url "terminar_ruta" ruta.id %}';
+  </script>
+
+  <!-- 3. Trakeo.js — usa las variables definidas arriba -->
+  <script src="{% static 'Trakeo.js' %}"></script>
+
+  <!-- 4. Lógica SOS -->
+  <script>
+    function activarSOS() {
+      document.getElementById('sos-modal').classList.add('active');
+    }
+
+    function cerrarSOS() {
+      document.getElementById('sos-modal').classList.remove('active');
+    }
+
+    function confirmarSOS() {
+      const btn = document.querySelector('.btn-sos-confirm');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Enviando...';
+
+      if (!navigator.geolocation) {
+        enviarSOS(null, null);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        pos => enviarSOS(pos.coords.latitude, pos.coords.longitude),
+        ()  => enviarSOS(null, null),
+        { timeout: 8000 }
+      );
+    }
+
+    function enviarSOS(lat, lng) {
+      fetch('/rutas/sos/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+          lat:     lat,
+          lng:     lng,
+          ruta_id: typeof rutaId !== 'undefined' ? rutaId : null,
+          mensaje: '',
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        cerrarSOS();
+        if (data.ok) {
+          mostrarConfirmacionSOS(data);
+          if (data.telefono) {
+            const texto = encodeURIComponent(
+              `🆘 *ALERTA SOS — Walk App*\n\n` +
+              `Necesito ayuda.\n` +
+              (data.maps_url
+                ? `📍 Mi ubicación: ${data.maps_url}`
+                : `📍 Sin coordenadas GPS disponibles.`)
+            );
+            setTimeout(() => window.open(`https://wa.me/${data.telefono}?text=${texto}`, '_blank'), 800);
+          }
+        } else {
+          alert('Error al enviar SOS. Llama al 123 (emergencias Colombia).');
+        }
+      })
+      .catch(() => {
+        cerrarSOS();
+        alert('Sin conexión. Llama al 123 (emergencias Colombia).');
+      })
+      .finally(() => {
+        const btn = document.querySelector('.btn-sos-confirm');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-phone"></i> Sí, pedir ayuda';
+        }
+      });
+    }
+
+    function mostrarConfirmacionSOS(data) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+        background: #fff; border: 2px solid #e53935; border-radius: 14px;
+        padding: 16px 20px; z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        text-align: center; min-width: 280px; font-family: inherit;
+      `;
+      toast.innerHTML = `
+        <div style="font-size:2rem; margin-bottom:8px;">🆘</div>
+        <strong style="color:#e53935; display:block; margin-bottom:4px;">Alerta SOS enviada</strong>
+        <small style="color:#666;">
+          ${data.nombre_contacto
+            ? `Notificando a <strong>${data.nombre_contacto}</strong> por WhatsApp`
+            : 'Admin notificado. Mantente en tu posición.'}
+        </small>
+        ${data.maps_url
+          ? `<br><a href="${data.maps_url}" target="_blank" style="color:#e53935; font-size:0.8rem;">📍 Ver mi ubicación</a>`
+          : ''}
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 7000);
+    }
+
+    function getCookie(name) {
+      let value = null;
+      document.cookie.split(';').forEach(c => {
+        const [k, v] = c.trim().split('=');
+        if (k === name) value = decodeURIComponent(v);
+      });
+      return value;
+    }
+  </script>
+
+{% endblock %}
