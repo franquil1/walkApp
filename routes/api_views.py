@@ -171,3 +171,91 @@ def api_mis_rutas(request):
     rutas = Ruta.objects.filter(creada_por=request.user).order_by('-fecha_creacion')
     serializer = RutaSerializer(rutas, many=True, context={'request': request})
     return Response({'rutas': serializer.data, 'total': rutas.count()})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_guardar_recorrido(request, ruta_id):
+    """
+    Guarda un recorrido completado y suma puntos al usuario.
+    POST /api/rutas/<id>/recorridos/
+    Body: { distancia_km, tiempo_segundos }
+    """
+    try:
+        ruta = Ruta.objects.get(id=ruta_id)
+    except Ruta.DoesNotExist:
+        return Response({'error': 'Ruta no encontrada.'}, status=404)
+
+    distancia_km    = request.data.get('distancia_km', 0)
+    tiempo_segundos = request.data.get('tiempo_segundos', 0)
+
+    # Calcular puntos: 10 puntos por km recorrido
+    try:
+        puntos = max(1, int(float(distancia_km) * 10))
+    except (ValueError, TypeError):
+        puntos = 1
+
+    recorrido = RutaRecorrida.objects.create(
+        usuario=request.user,
+        ruta=ruta,
+        distancia_km=distancia_km,
+        tiempo_segundos=tiempo_segundos,
+        puntos_ganados=puntos,
+    )
+
+    # Sumar puntos al ranking si existe el modelo
+    try:
+        from ranking.models import Ranking
+        ranking_obj, _ = Ranking.objects.get_or_create(usuario=request.user)
+        ranking_obj.puntos = (ranking_obj.puntos or 0) + puntos
+        ranking_obj.save()
+    except Exception:
+        pass
+
+    return Response({
+        'mensaje': f'Recorrido guardado. Ganaste {puntos} puntos.',
+        'recorrido': {
+            'id': recorrido.id,
+            'ruta': ruta.nombre_ruta,
+            'distancia_km': str(recorrido.distancia_km),
+            'tiempo_segundos': recorrido.tiempo_segundos,
+            'puntos_ganados': recorrido.puntos_ganados,
+            'fecha': str(recorrido.fecha),
+        }
+    }, status=201)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_mis_recorridos(request):
+    """
+    Devuelve los recorridos completados por el usuario autenticado.
+    GET /api/rutas/mis-recorridos/
+    """
+    recorridos = RutaRecorrida.objects.filter(
+        usuario=request.user
+    ).select_related('ruta').order_by('-fecha')
+
+    data = [
+        {
+            'id': r.id,
+            'ruta_id': r.ruta.id,
+            'ruta_nombre': r.ruta.nombre_ruta,
+            'ruta_dificultad': r.ruta.dificultad,
+            'ruta_longitud': str(r.ruta.longitud),
+            'distancia_km': str(r.distancia_km),
+            'tiempo_segundos': r.tiempo_segundos,
+            'puntos_ganados': r.puntos_ganados,
+            'fecha': str(r.fecha),
+        }
+        for r in recorridos
+    ]
+
+    total_km = sum(float(r['distancia_km']) for r in data)
+    total_puntos = sum(r['puntos_ganados'] for r in data)
+
+    return Response({
+        'recorridos': data,
+        'total': len(data),
+        'total_km': round(total_km, 2),
+        'total_puntos': total_puntos,
+    })

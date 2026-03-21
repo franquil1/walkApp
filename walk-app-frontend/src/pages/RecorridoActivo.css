@@ -1,0 +1,48 @@
+.recorrido-page { display: flex; flex-direction: column; min-height: 100vh; background: #f5f7f5; font-family: 'DM Sans', sans-serif; }
+
+.recorrido-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 16px; }
+.recorrido-spinner { width: 36px; height: 36px; border: 3px solid #e0e0e0; border-top-color: #2d5a27; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.recorrido-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #0d1f0d; color: #fff; }
+.recorrido-back { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.recorrido-header-info { display: flex; flex-direction: column; gap: 2px; }
+.recorrido-nombre { font-size: 15px; font-weight: 500; color: #fff; }
+.recorrido-estado-badge { font-size: 11px; padding: 2px 8px; border-radius: 8px; width: fit-content; }
+.recorrido-estado-badge--listo    { background: #333; color: #aaa; }
+.recorrido-estado-badge--activo   { background: #1b4d1b; color: #7dca7d; }
+.recorrido-estado-badge--finalizado { background: #1a3a2a; color: #6fcf97; }
+
+.recorrido-mapa { flex: 1; min-height: 340px; z-index: 0; }
+
+.recorrido-metricas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 16px; background: #fff; border-top: 1px solid #e8ede8; }
+.metrica-card { text-align: center; padding: 10px 4px; }
+.metrica-valor { font-size: 24px; font-weight: 600; color: #0d1f0d; }
+.metrica-card--tiempo .metrica-valor { color: #2d5a27; }
+.metrica-label { font-size: 11px; color: #6a7a6a; margin-top: 2px; }
+
+.recorrido-error { background: #fce4ec; color: #b71c1c; padding: 10px 16px; font-size: 13px; text-align: center; }
+
+.recorrido-controles { padding: 12px 16px; background: #fff; border-top: 1px solid #e8ede8; }
+.btn-iniciar, .btn-finalizar, .btn-guardar, .btn-volver, .btn-perfil {
+  width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 500; cursor: pointer; transition: opacity 0.2s;
+}
+.btn-iniciar   { background: #2d5a27; color: #fff; }
+.btn-finalizar { background: #c0392b; color: #fff; }
+.btn-guardar   { background: #1e3d2f; color: #fff; }
+.btn-iniciar:hover, .btn-finalizar:hover, .btn-guardar:hover { opacity: 0.9; }
+
+.recorrido-resumen { padding: 20px 16px; background: #fff; border-top: 1px solid #e8ede8; }
+.resumen-titulo { font-size: 18px; font-weight: 600; color: #0d1f0d; text-align: center; margin-bottom: 16px; }
+.resumen-grid { display: flex; justify-content: space-around; margin-bottom: 20px; }
+.resumen-item { display: flex; align-items: center; gap: 8px; }
+.resumen-icon { font-size: 24px; }
+.resumen-val { font-size: 18px; font-weight: 600; color: #0d1f0d; }
+.resumen-lbl { font-size: 11px; color: #6a7a6a; }
+.btn-volver  { background: #f0f4f0; color: #2d5a27; margin-bottom: 8px; }
+.btn-perfil  { background: #2d5a27; color: #fff; }
+
+@media (max-width: 480px) {
+  .metrica-valor { font-size: 20px; }
+  .recorrido-mapa { min-height: 260px; }
+}

@@ -43,6 +43,8 @@ export default function Perfil() {
   const [misRutas, setMisRutas] = useState([]);
   const [cargandoMisRutas, setCargandoMisRutas] = useState(false);
   const [eliminando, setEliminando] = useState(null);
+  const [misRecorridos, setMisRecorridos] = useState([]);
+  const [cargandoRecorridos, setCargandoRecorridos] = useState(false);
   const [tab, setTab] = useState("favoritas");
   const [editando, setEditando] = useState(false);
   const [formData, setFormData] = useState({ first_name: "", last_name: "", email: "", bio: "" });
@@ -105,6 +107,18 @@ export default function Perfil() {
     fetchMisRutas();
   }, []);
 
+  useEffect(() => {
+    const fetchMisRecorridos = async () => {
+      setCargandoRecorridos(true);
+      try {
+        const res = await api.get("/api/rutas/mis-recorridos/");
+        setMisRecorridos(res.data?.recorridos || []);
+      } catch {}
+      finally { setCargandoRecorridos(false); }
+    };
+    fetchMisRecorridos();
+  }, []);
+
   const handleFotoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -124,7 +138,6 @@ export default function Perfil() {
       formDataObj.append("email", formData.email);
       formDataObj.append("bio", formData.bio);
       if (fotoFile) formDataObj.append("foto_perfil", fotoFile);
-
       const res = await api.patch("/api/auth/perfil/editar/", formDataObj, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -167,7 +180,6 @@ export default function Perfil() {
     <div className="perfil-page">
       <Navbar />
 
-      {}
       <div className="perfil-hero">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="perfil-hero-orb" style={{
@@ -206,10 +218,11 @@ export default function Perfil() {
 
           <div className="perfil-tabs">
             {[
-              { key: "favoritas", label: "❤️ Mis Favoritas" },
-              { key: "misrutas",  label: "🗺️ Mis Rutas" },
-              { key: "info",      label: "👤 Mi Información" },
-              { key: "actividad", label: "📊 Actividad" },
+              { key: "favoritas",  label: "❤️ Mis Favoritas" },
+              { key: "misrutas",   label: "🗺️ Mis Rutas" },
+              { key: "recorridos", label: "🥾 Recorridos" },
+              { key: "info",       label: "👤 Mi Información" },
+              { key: "actividad",  label: "📊 Actividad" },
             ].map((t) => (
               <button key={t.key} onClick={() => setTab(t.key)} className={`tab-btn ${tab === t.key ? "active" : ""}`}>
                 {t.label}
@@ -219,7 +232,6 @@ export default function Perfil() {
         </div>
       </div>
 
-      {}
       <div className="perfil-contenido">
 
         {mensaje && (
@@ -228,7 +240,7 @@ export default function Perfil() {
           </div>
         )}
 
-        {}
+        {/* ── Tab Favoritas ── */}
         {tab === "favoritas" && (
           <div className="tab-content">
             <div className="seccion-header">
@@ -284,7 +296,7 @@ export default function Perfil() {
           </div>
         )}
 
-        {}
+        {/* ── Tab Mis Rutas ── */}
         {tab === "misrutas" && (
           <div className="tab-content">
             <div className="seccion-header">
@@ -357,7 +369,80 @@ export default function Perfil() {
           </div>
         )}
 
-        {}
+        {/* ── Tab Recorridos ── */}
+        {tab === "recorridos" && (
+          <div className="tab-content">
+            <div className="seccion-header">
+              <div>
+                <h2 className="seccion-titulo">Mis Recorridos</h2>
+                <p className="seccion-subtitulo">
+                  {misRecorridos.length} recorrido{misRecorridos.length !== 1 ? "s" : ""} completado{misRecorridos.length !== 1 ? "s" : ""}
+                </p>
+              </div>
+              <Link to="/rutas" className="btn-primario">+ Explorar rutas</Link>
+            </div>
+
+            {cargandoRecorridos && <div className="spinner-wrap"><div className="spinner" /></div>}
+
+            {!cargandoRecorridos && misRecorridos.length === 0 && (
+              <div className="estado-vacio">
+                <div className="estado-vacio-icono">🥾</div>
+                <h3 className="estado-vacio-titulo">Aún no has completado recorridos</h3>
+                <p className="estado-vacio-texto">Inicia un recorrido GPS desde cualquier ruta.</p>
+                <Link to="/rutas" className="btn-primario-lg">Ver rutas</Link>
+              </div>
+            )}
+
+            {!cargandoRecorridos && misRecorridos.length > 0 && (
+              <>
+                <div className="recorridos-resumen">
+                  {[
+                    { icon: "🥾", label: "Recorridos",  value: misRecorridos.length },
+                    { icon: "📏", label: "Km totales",   value: `${misRecorridos.reduce((a, r) => a + parseFloat(r.distancia_km || 0), 0).toFixed(1)} km` },
+                    { icon: "⭐", label: "Pts ganados",  value: misRecorridos.reduce((a, r) => a + (r.puntos_ganados || 0), 0) },
+                  ].map((s) => (
+                    <div key={s.label} className="recorridos-stat">
+                      <div className="recorridos-stat-icon">{s.icon}</div>
+                      <div className="recorridos-stat-valor">{s.value}</div>
+                      <div className="recorridos-stat-label">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="recorridos-lista">
+                  {misRecorridos.map((r) => {
+                    const diff = DIFICULTAD_COLORS[r.ruta_dificultad] || DIFICULTAD_COLORS.MODERADO;
+                    const mins = Math.floor(r.tiempo_segundos / 60);
+                    const segs = r.tiempo_segundos % 60;
+                    const tiempoStr = mins > 0 ? `${mins}m ${segs}s` : `${segs}s`;
+                    return (
+                      <div key={r.id} className="recorrido-item">
+                        <div className="recorrido-item-left">
+                          <div className="recorrido-item-nombre">{r.ruta_nombre}</div>
+                          <div className="recorrido-item-fecha">
+                            {new Date(r.fecha).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" })}
+                          </div>
+                          <span className="dificultad-badge" style={{ background: diff.bg, color: diff.text, marginTop: 6, display: "inline-flex" }}>
+                            <span className="dificultad-dot" style={{ background: diff.dot }} />
+                            {DIFICULTAD_LABELS[r.ruta_dificultad]}
+                          </span>
+                        </div>
+                        <div className="recorrido-item-right">
+                          <div className="recorrido-item-stat"><span>📏</span> {parseFloat(r.distancia_km).toFixed(2)} km</div>
+                          <div className="recorrido-item-stat"><span>⏱</span> {tiempoStr}</div>
+                          <div className="recorrido-item-stat recorrido-item-pts"><span>⭐</span> {r.puntos_ganados} pts</div>
+                        </div>
+                        <Link to={`/rutas/${r.ruta_id}`} className="recorrido-item-btn">Ver ruta →</Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── Tab Info ── */}
         {tab === "info" && (
           <div className="tab-content-info">
             <div className="seccion-header-info">
@@ -427,7 +512,7 @@ export default function Perfil() {
           </div>
         )}
 
-        {}
+        {/* ── Tab Actividad ── */}
         {tab === "actividad" && (
           <div className="tab-content">
             <h2 className="seccion-titulo" style={{ marginBottom: 8 }}>Mi Actividad</h2>

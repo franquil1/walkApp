@@ -358,6 +358,9 @@ export default function DetalleRuta() {
                 className={`sidebar-cta__btn-fav ${favorito ? "sidebar-cta__btn-fav--on" : "sidebar-cta__btn-fav--off"}`}>
                 {favorito ? "❤️ En tus favoritas" : "🤍 Guardar en favoritas"}
               </button>
+              <Link to={`/rutas/${id}/recorrido`} className="sidebar-cta__btn-iniciar">
+                🥾 Iniciar recorrido
+              </Link>
               <Link to="/rutas" className="sidebar-cta__btn-back">← Ver todas las rutas</Link>
             </div>
           </div>

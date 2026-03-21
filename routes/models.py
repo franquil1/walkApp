@@ -93,9 +93,17 @@ class UserRutaFavorita(models.Model):
 # ===========================
 
 class RutaRecorrida(models.Model):
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ruta = models.ForeignKey(Ruta, on_delete=models.CASCADE)
-    fecha = models.DateField(auto_now_add=True)
+    usuario        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='recorridos')
+    ruta           = models.ForeignKey(Ruta, on_delete=models.CASCADE, related_name='recorridos')
+    fecha          = models.DateField(auto_now_add=True)
+    distancia_km   = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    tiempo_segundos = models.PositiveIntegerField(default=0)
+    puntos_ganados = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Ruta Recorrida"
+        verbose_name_plural = "Rutas Recorridas"
+        ordering = ['-fecha']
 
     def __str__(self):
-        return f"{self.usuario.username} - {self.ruta.nombre_ruta}"
+        return f"{self.usuario.username} - {self.ruta.nombre_ruta} ({self.fecha})"

@@ -706,3 +706,24 @@
     display: none;
   }
 }
+
+.sidebar-cta__btn-iniciar {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  background: #f7f5f0;
+  color: #1a2e1a;
+  border: none;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  margin-bottom: 10px;
+  transition: background 0.2s;
+}
+.sidebar-cta__btn-iniciar:hover {
+  background: #e8f5e9;
+}
