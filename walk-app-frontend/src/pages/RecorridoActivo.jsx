@@ -32,7 +32,7 @@ export default function RecorridoActivo() {
   const [fase, setFase] = useState("listo"); // listo | activo | finalizado
   const [distancia, setDistancia] = useState(0);
   const [tiempo, setTiempo] = useState(0);
-  const [posActual, setPosActual] = useState(null);
+  const [, setPosActual] = useState(null);
   const [errorGPS, setErrorGPS] = useState(null);
   const [guardando, setGuardando] = useState(false);
   const [resumen, setResumen] = useState(null);

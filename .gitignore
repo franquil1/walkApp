@@ -18,3 +18,5 @@ media/
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+node_modules/
+walk-app-frontend/build/
