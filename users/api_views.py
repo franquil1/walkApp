@@ -108,7 +108,8 @@ def api_registro(request):
     token = account_activation_token.make_token(user)
 
     # Link de activación — apunta al frontend React
-    activation_link = f"http://10.3.53.23:3000/activar/{uid}/{token}/"
+    frontend_url = request.META.get('HTTP_ORIGIN', 'http://localhost:3000')
+    activation_link = f"{frontend_url}/activar/{uid}/{token}/"
 
     # Enviar correo usando el mismo template HTML que el flujo Django
     try:
