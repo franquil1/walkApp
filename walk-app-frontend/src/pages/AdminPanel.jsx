@@ -192,12 +192,10 @@ function SeccionUsuarios() {
   return (
     <div style={{ animation: "fadeUp 0.4s ease" }}>
       {toast && <div className={`admin-toast ${toast.ok ? "ok" : "error"}`}>{toast.ok ? "✅" : "❌"} {toast.msg}</div>}
-
       <div className="seccion-header">
         <h2 className="seccion-titulo" style={{ marginBottom: 0 }}>Usuarios ({usuarios.length})</h2>
         <button className="btn-actualizar" onClick={fetchUsuarios}>↻ Actualizar</button>
       </div>
-
       <div className="filtros-wrap">
         <input className="admin-input" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar por usuario o email..." />
         <div className="filtros-botones">
@@ -208,7 +206,6 @@ function SeccionUsuarios() {
           ))}
         </div>
       </div>
-
       {cargando ? <Spinner /> : (
         <div className="usuarios-lista">
           {filtrados.map(u => (
@@ -279,12 +276,10 @@ function SeccionRutas() {
   return (
     <div style={{ animation: "fadeUp 0.4s ease" }}>
       {toast && <div className={`admin-toast ${toast.ok ? "ok" : "error"}`}>{toast.ok ? "✅" : "❌"} {toast.msg}</div>}
-
       <div className="seccion-header">
         <h2 className="seccion-titulo" style={{ marginBottom: 0 }}>Rutas ({rutas.length})</h2>
         <button className="btn-actualizar" onClick={fetchRutas}>↻ Actualizar</button>
       </div>
-
       <div className="filtros-wrap">
         <input className="admin-input" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar ruta..." />
         <div className="filtros-botones">
@@ -295,7 +290,6 @@ function SeccionRutas() {
           ))}
         </div>
       </div>
-
       {cargando ? <Spinner /> : (
         <div className="rutas-lista">
           {filtradas.map(r => {
@@ -328,10 +322,139 @@ function SeccionRutas() {
   );
 }
 
+/* ── NUEVA SECCIÓN SOS ── */
+function SeccionSOS() {
+  const [alertas, setAlertas] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [filtroEstado, setFiltroEstado] = useState("PENDIENTE");
+  const [cambiando, setCambiando] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (msg, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 2500); };
+
+  const fetchAlertas = useCallback(async () => {
+    setCargando(true);
+    try {
+      const r = await api.get("/api/auth/sos/listar/");
+      setAlertas(r.data.alertas || []);
+    } catch {} finally { setCargando(false); }
+  }, []);
+
+  useEffect(() => { fetchAlertas(); }, [fetchAlertas]);
+
+  const handleCambiarEstado = async (id, nuevoEstado) => {
+    setCambiando(id);
+    try {
+      await api.patch(`/api/auth/sos/${id}/`, { estado: nuevoEstado });
+      setAlertas(prev => prev.map(a => a.id === id ? { ...a, estado: nuevoEstado } : a));
+      showToast(`Alerta marcada como ${nuevoEstado}`);
+    } catch { showToast("Error al actualizar alerta", false); }
+    finally { setCambiando(null); }
+  };
+
+  const ESTADO_CONFIG = {
+    PENDIENTE: { label: "Pendiente", color: "#f87171", bg: "rgba(248,113,113,0.12)", border: "rgba(248,113,113,0.25)" },
+    ATENDIDA:  { label: "Atendida",  color: "#86efac", bg: "rgba(134,239,172,0.12)", border: "rgba(134,239,172,0.25)" },
+    FALSA:     { label: "Falsa",     color: "#fcd34d", bg: "rgba(252,211,77,0.12)",  border: "rgba(252,211,77,0.25)"  },
+  };
+
+  const filtradas = filtroEstado === "TODAS"
+    ? alertas
+    : alertas.filter(a => a.estado === filtroEstado);
+
+  const pendientes = alertas.filter(a => a.estado === "PENDIENTE").length;
+
+  return (
+    <div style={{ animation: "fadeUp 0.4s ease" }}>
+      {toast && <div className={`admin-toast ${toast.ok ? "ok" : "error"}`}>{toast.ok ? "✅" : "❌"} {toast.msg}</div>}
+
+      <div className="seccion-header">
+        <div>
+          <h2 className="seccion-titulo" style={{ marginBottom: 4 }}>
+            🆘 Alertas SOS
+            {pendientes > 0 && <span className="sos-pendientes-badge">{pendientes} pendiente{pendientes !== 1 ? "s" : ""}</span>}
+          </h2>
+        </div>
+        <button className="btn-actualizar" onClick={fetchAlertas}>↻ Actualizar</button>
+      </div>
+
+      <div className="filtros-wrap">
+        <div className="filtros-botones">
+          {["PENDIENTE", "ATENDIDA", "FALSA", "TODAS"].map(e => (
+            <button key={e} onClick={() => setFiltroEstado(e)} className={`filtro-btn ${filtroEstado === e ? "activo" : "inactivo"}`}>
+              {e === "TODAS" ? "Todas" : ESTADO_CONFIG[e]?.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {cargando ? <Spinner /> : (
+        <div className="alertas-lista">
+          {filtradas.length === 0 && (
+            <div className="sin-resultados">
+              {filtroEstado === "PENDIENTE" ? "No hay alertas pendientes. ✅" : "No hay alertas en esta categoría."}
+            </div>
+          )}
+          {filtradas.map(a => {
+            const cfg = ESTADO_CONFIG[a.estado] || ESTADO_CONFIG.PENDIENTE;
+            return (
+              <div key={a.id} className={`alerta-row ${a.estado === "PENDIENTE" ? "alerta-row--urgente" : ""}`}>
+                <div className="alerta-header">
+                  <div className="alerta-usuario">
+                    <span className="alerta-usuario-nombre">👤 {a.usuario}</span>
+                    {a.ruta && <span className="alerta-ruta-tag">🏔️ {a.ruta}</span>}
+                  </div>
+                  <span className="alerta-estado-badge" style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
+                    {cfg.label}
+                  </span>
+                </div>
+
+                <div className="alerta-meta">
+                  <span>🕐 {a.fecha_hora}</span>
+                  {a.maps_url && (
+                    <a href={a.maps_url} target="_blank" rel="noopener noreferrer" className="alerta-maps-link">
+                      📍 Ver en Google Maps
+                    </a>
+                  )}
+                  {!a.maps_url && <span className="alerta-sin-gps">📍 Sin GPS</span>}
+                </div>
+
+                {a.mensaje && (
+                  <div className="alerta-mensaje">💬 {a.mensaje}</div>
+                )}
+
+                {a.estado === "PENDIENTE" && (
+                  <div className="alerta-acciones">
+                    <button
+                      className="btn-atender"
+                      onClick={() => handleCambiarEstado(a.id, "ATENDIDA")}
+                      disabled={cambiando === a.id}
+                    >
+                      {cambiando === a.id ? "..." : "✅ Marcar atendida"}
+                    </button>
+                    <button
+                      className="btn-falsa"
+                      onClick={() => handleCambiarEstado(a.id, "FALSA")}
+                      disabled={cambiando === a.id}
+                    >
+                      ⚠️ Falsa alarma
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const SECCIONES = [
   { key: "dashboard", label: "Dashboard", emoji: "📊" },
   { key: "usuarios",  label: "Usuarios",  emoji: "👥" },
   { key: "rutas",     label: "Rutas",     emoji: "🏔️" },
+  { key: "sos",       label: "Alertas SOS", emoji: "🆘" },
 ];
 
 export default function AdminPanel() {
@@ -342,7 +465,6 @@ export default function AdminPanel() {
 
   return (
     <div className="admin-page">
-      {/* ── Sidebar ── */}
       <div className="admin-sidebar">
         <div className="admin-sidebar-header">
           <Link to="/" className="admin-sidebar-logo">
@@ -373,11 +495,11 @@ export default function AdminPanel() {
         </div>
       </div>
 
-      {/* ── Contenido ── */}
       <div className="admin-contenido">
         {seccion === "dashboard" && <SeccionDashboard />}
         {seccion === "usuarios"  && <SeccionUsuarios />}
         {seccion === "rutas"     && <SeccionRutas />}
+        {seccion === "sos"       && <SeccionSOS />}
       </div>
     </div>
   );
