@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api from "../axiosConfig";
 
 const EMERGENCY_CONTACTS = [
   { name: "Policía Nacional",       number: "112", icon: "🚔" },
@@ -48,7 +49,7 @@ export default function SOSButton() {
   };
 
   // Abrir WhatsApp con mensaje de emergencia
-  const abrirWhatsApp = () => {
+  const abrirWhatsApp = async () => {
     const mapsLink = location
       ? `https://maps.google.com/?q=${location.lat},${location.lng}`
       : "(ubicación no disponible)";
@@ -57,6 +58,13 @@ export default function SOSButton() {
     );
     const num = trusted.startsWith("57") ? trusted : `57${trusted}`;
     window.open(`https://wa.me/${num}?text=${msg}`, "_blank");
+    try {
+      await api.post("/api/auth/sos/", {
+        latitud:  location?.lat || null,
+        longitud: location?.lng || null,
+        mensaje:  "Alerta enviada por WhatsApp",
+      });
+    } catch {}
   };
 
   const shareLocation = async () => {
@@ -70,6 +78,13 @@ export default function SOSButton() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+    try {
+      await api.post("/api/auth/sos/", {
+        latitud:  location?.lat || null,
+        longitud: location?.lng || null,
+        mensaje:  "Ubicación compartida en emergencia",
+      });
+    } catch {}
   };
 
   return (

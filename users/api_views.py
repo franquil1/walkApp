@@ -298,3 +298,106 @@ def api_cambiar_rol(request, user_id):
     u.is_staff = (nuevo_rol == 'admin')
     u.save()
     return Response({'mensaje': f'Rol actualizado a {nuevo_rol}.', 'rol': nuevo_rol})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_crear_alerta_sos(request):
+    """
+    Registra una alerta SOS en la base de datos.
+    POST /api/auth/sos/
+    Body: { latitud, longitud, mensaje (opcional), ruta_id (opcional) }
+    """
+    from .models import AlertaSOS
+    from routes.models import Ruta
+
+    latitud  = request.data.get('latitud')
+    longitud = request.data.get('longitud')
+    mensaje  = request.data.get('mensaje', '')
+    ruta_id  = request.data.get('ruta_id')
+
+    maps_url = None
+    if latitud and longitud:
+        maps_url = f"https://maps.google.com/?q={latitud},{longitud}"
+
+    ruta = None
+    if ruta_id:
+        try:
+            ruta = Ruta.objects.get(id=ruta_id)
+        except Ruta.DoesNotExist:
+            pass
+
+    alerta = AlertaSOS.objects.create(
+        usuario=request.user,
+        ruta=ruta,
+        latitud=latitud,
+        longitud=longitud,
+        maps_url=maps_url,
+        mensaje=mensaje,
+        estado='PENDIENTE',
+    )
+
+    return Response({
+        'mensaje': 'Alerta SOS registrada.',
+        'alerta_id': alerta.id,
+        'maps_url': maps_url,
+        'estado': alerta.estado,
+    }, status=201)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_listar_alertas_sos(request):
+    """
+    Lista todas las alertas SOS. Solo admins.
+    GET /api/auth/sos/
+    """
+    from .models import AlertaSOS
+
+    if not (request.user.is_staff or getattr(request.user, 'rol', '') == 'admin'):
+        return Response({'error': 'No tienes permisos.'}, status=403)
+
+    alertas = AlertaSOS.objects.select_related('usuario', 'ruta').order_by('-fecha_hora')[:50]
+    data = [
+        {
+            'id': a.id,
+            'usuario': a.usuario.username,
+            'ruta': a.ruta.nombre_ruta if a.ruta else None,
+            'latitud': str(a.latitud) if a.latitud else None,
+            'longitud': str(a.longitud) if a.longitud else None,
+            'maps_url': a.maps_url,
+            'mensaje': a.mensaje,
+            'estado': a.estado,
+            'fecha_hora': a.fecha_hora.strftime('%d/%m/%Y %H:%M'),
+        }
+        for a in alertas
+    ]
+    return Response({'alertas': data, 'total': len(data)})
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def api_atender_alerta_sos(request, alerta_id):
+    """
+    Cambia el estado de una alerta SOS. Solo admins.
+    PATCH /api/auth/sos/<id>/
+    Body: { estado: 'ATENDIDA' | 'FALSA' }
+    """
+    from .models import AlertaSOS
+
+    if not (request.user.is_staff or getattr(request.user, 'rol', '') == 'admin'):
+        return Response({'error': 'No tienes permisos.'}, status=403)
+
+    try:
+        alerta = AlertaSOS.objects.get(id=alerta_id)
+    except AlertaSOS.DoesNotExist:
+        return Response({'error': 'Alerta no encontrada.'}, status=404)
+
+    nuevo_estado = request.data.get('estado')
+    if nuevo_estado not in ['ATENDIDA', 'FALSA']:
+        return Response({'error': 'Estado inválido. Usa ATENDIDA o FALSA.'}, status=400)
+
+    alerta.estado = nuevo_estado
+    alerta.atendida_por = request.user
+    alerta.save()
+
+    return Response({'mensaje': f'Alerta marcada como {nuevo_estado}.', 'estado': alerta.estado})

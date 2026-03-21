@@ -10,4 +10,7 @@ urlpatterns = [
     path('perfil/editar/',                      api_views.api_actualizar_perfil),
     path('usuarios/',                           api_views.api_lista_usuarios),
     path('usuarios/<int:user_id>/rol/',         api_views.api_cambiar_rol),
+    path('sos/',                                api_views.api_crear_alerta_sos),      
+    path('sos/listar/',                         api_views.api_listar_alertas_sos),     
+    path('sos/<int:alerta_id>/',                api_views.api_atender_alerta_sos),     
 ]
