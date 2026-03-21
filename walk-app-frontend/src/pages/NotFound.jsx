@@ -7,7 +7,6 @@ export default function NotFound() {
   const navigate = useNavigate();
   const [cuenta, setCuenta] = useState(10);
 
-  // Countdown para redirigir al home
   useEffect(() => {
     if (cuenta <= 0) { navigate("/"); return; }
     const timer = setTimeout(() => setCuenta((c) => c - 1), 1000);
@@ -61,10 +60,10 @@ export default function NotFound() {
       <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 24px 60px" }}>
         <div style={{ maxWidth: 700, width: "100%", textAlign: "center" }}>
 
-          {/* Ilustración animada */}
+          {}
           <div style={{ position: "relative", height: 220, marginBottom: 16, userSelect: "none" }}>
 
-            {/* Niebla de fondo */}
+            {}
             {[...Array(3)].map((_, i) => (
               <div key={i} style={{
                 position: "absolute", borderRadius: "50%",
@@ -76,14 +75,14 @@ export default function NotFound() {
               }} />
             ))}
 
-            {/* Montaña grande */}
+            {}
             <svg viewBox="0 0 400 180" style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: 380, opacity: 0.18 }}>
               <polygon points="200,10 320,170 80,170" fill="#2d5a27" />
               <polygon points="310,60 390,170 230,170" fill="#4a7c59" />
               <polygon points="90,80 160,170 20,170" fill="#1e3d1a" />
             </svg>
 
-            {/* 404 flotando */}
+            {}
             <div style={{
               position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)",
               fontFamily: "'Lora', serif", fontWeight: 700,
@@ -100,7 +99,7 @@ export default function NotFound() {
               404
             </div>
 
-            {/* Caminante */}
+            {}
             <div style={{
               position: "absolute", bottom: 28, right: "18%",
               fontSize: "2.8rem",
@@ -111,13 +110,13 @@ export default function NotFound() {
               🥾
             </div>
 
-            {/* Árbol */}
+            {}
             <div style={{ position: "absolute", bottom: 20, left: "15%", fontSize: "2.2rem", opacity: 0.7 }}>🌲</div>
             <div style={{ position: "absolute", bottom: 14, left: "22%", fontSize: "1.6rem", opacity: 0.5 }}>🌿</div>
             <div style={{ position: "absolute", bottom: 18, right: "10%", fontSize: "1.8rem", opacity: 0.6 }}>🌳</div>
           </div>
 
-          {/* Texto principal */}
+          {}
           <div style={{ animation: "fadeUp 0.5s ease 0.1s both" }}>
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: "0.8rem", letterSpacing: "0.25em", color: "#4a7c59", textTransform: "uppercase", marginBottom: 14 }}>
               Sendero no encontrado
@@ -131,13 +130,13 @@ export default function NotFound() {
             </p>
           </div>
 
-          {/* Botones */}
+          {}
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", marginBottom: 52, animation: "fadeUp 0.5s ease 0.2s both" }}>
             <Link to="/" className="btn-primary">🏠 Volver al inicio</Link>
             <Link to="/rutas" className="btn-secondary">🗺️ Ver rutas</Link>
           </div>
 
-          {/* Links rápidos */}
+          {}
           <div style={{ animation: "fadeUp 0.5s ease 0.3s both" }}>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 16 }}>
               O ve directamente a
@@ -158,7 +157,7 @@ export default function NotFound() {
             </div>
           </div>
 
-          {/* Countdown */}
+          {}
           <div style={{ marginTop: 48, animation: "fadeUp 0.5s ease 0.4s both" }}>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: "0.82rem", color: "#b5b5b5" }}>
               Regresando al inicio en{" "}

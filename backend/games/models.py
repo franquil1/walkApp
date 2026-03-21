@@ -237,3 +237,64 @@ def actualizar_estadisticas_usuario(sender, instance, created, **kwargs):
             usuario=instance.usuario
         )
         estadisticas.actualizar_estadisticas(instance)
+
+# ===================================
+# MODELO MAPA ROTO
+# ===================================
+
+class HistorialMapaRoto(models.Model):
+
+    DIFICULTAD_CHOICES = [
+        ('facil',   'Fácil'),
+        ('normal',  'Normal'),
+        ('dificil', 'Difícil'),
+    ]
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='juegos_mapa_roto',
+        verbose_name='Usuario'
+    )
+
+    dificultad = models.CharField(
+        max_length=10,
+        choices=DIFICULTAD_CHOICES,
+        verbose_name='Dificultad'
+    )
+
+    imagen_mapa = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name='Imagen del mapa',
+        help_text='Nombre del archivo de imagen resuelto'
+    )
+
+    duracion_segundos = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Duración (segundos)'
+    )
+
+    pistas_usadas = models.IntegerField(
+        default=0,
+        verbose_name='Pistas usadas'
+    )
+
+    fecha_juego = models.DateTimeField(
+        default=timezone.now,
+        verbose_name='Fecha del juego'
+    )
+
+    class Meta:
+        verbose_name = 'Historial Mapa Roto'
+        verbose_name_plural = 'Historial Mapa Roto'
+        ordering = ['-fecha_juego']
+
+    def __str__(self):
+        return f"{self.usuario.username} - Mapa Roto {self.get_dificultad_display()} - {self.duracion_segundos}s"
+
+    @property
+    def pistas_restantes(self):
+        return max(0, 3 - self.pistas_usadas)

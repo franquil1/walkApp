@@ -1,0 +1,1234 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ─── Reset ─── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Animaciones ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+/* ─── Layout principal ─── */
+.juegos-page {
+  font-family: 'Lora', Georgia, serif;
+  background: #f7f5f0;
+  min-height: 100vh;
+}
+
+/* ─── Hero / Banner superior ─── */
+.juegos-hero {
+  background: linear-gradient(160deg, #0d1f0d 0%, #1e3d1a 55%, #2d5a27 100%);
+  padding-top: 90px;
+  padding-bottom: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.juegos-hero__orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.juegos-hero__orb--1 { width: 300px; height: 300px; background: rgba(181,213,160,0.04); top: -15%; left: -5%; }
+.juegos-hero__orb--2 { width: 180px; height: 180px; background: rgba(181,213,160,0.06); top:  35%; left: 68%; }
+.juegos-hero__orb--3 { width: 240px; height: 240px; background: rgba(181,213,160,0.03); top:   5%; left: 38%; }
+
+.juegos-hero__inner {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 32px 52px;
+  position: relative;
+}
+
+/* ─── Menú de juegos ─── */
+.juegos-menu {
+  animation: fadeUp 0.4s ease;
+}
+
+.juegos-menu__header {
+  text-align: center;
+  margin-bottom: 44px;
+}
+
+.juegos-menu__eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  color: #b5d5a0;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.juegos-menu__title {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  color: #f7f5f0;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+
+.juegos-menu__title em {
+  color: #b5d5a0;
+}
+
+.juegos-menu__subtitle {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  color: rgba(247, 245, 240, 0.5);
+  font-size: 0.9rem;
+}
+
+/* Grid de selección de juegos */
+.juegos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 620px;
+  margin: 0 auto 32px;
+}
+
+.juego-card {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(181, 213, 160, 0.18);
+  border-radius: 12px;
+  padding: 32px 24px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.25s;
+}
+
+.juego-card:hover {
+  background: rgba(255, 255, 255, 0.13);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+}
+
+.juego-card__emoji {
+  font-size: 2.8rem;
+  margin-bottom: 12px;
+}
+
+.juego-card__title {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #f7f5f0;
+  margin-bottom: 8px;
+}
+
+.juego-card__sub {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  font-size: 0.78rem;
+  color: rgba(247, 245, 240, 0.45);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.juego-card__badge {
+  background: rgba(181, 213, 160, 0.13);
+  border: 1px solid rgba(181, 213, 160, 0.22);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #b5d5a0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Últimas partidas */
+.juegos-ultimas {
+  max-width: 620px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(181, 213, 160, 0.1);
+  border-radius: 8px;
+  padding: 18px 22px;
+}
+
+.juegos-ultimas__label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.68rem;
+  color: rgba(181, 213, 160, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.juegos-ultimas__list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.juegos-ultimas__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.juegos-ultimas__item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.juegos-ultimas__item-emoji { font-size: 0.9rem; }
+
+.juegos-ultimas__item-name {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 0.78rem;
+  color: #f7f5f0;
+}
+
+.juegos-ultimas__item-date {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.65rem;
+  color: rgba(247, 245, 240, 0.3);
+}
+
+.juegos-ultimas__item-pts {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+/* ─── Panel del juego activo ─── */
+.juego-activo-panel {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(181, 213, 160, 0.14);
+  border-radius: 12px;
+  padding: 36px 40px;
+}
+
+/* ─── Sección de info (parte baja, fondo claro) ─── */
+.juegos-info {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 48px 32px 80px;
+}
+
+.juegos-info__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.juegos-info__card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 26px;
+  border: 1px solid rgba(74, 124, 89, 0.1);
+  box-shadow: 0 2px 12px rgba(26, 46, 26, 0.05);
+}
+
+.juegos-info__card-emoji {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.juegos-info__card-title {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #1a2e1a;
+  margin-bottom: 8px;
+}
+
+.juegos-info__card-desc {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  font-size: 0.82rem;
+  color: #6a7a6a;
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+
+.juegos-info__tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.juegos-info__tag {
+  background: #f0f7ee;
+  color: #2d5a27;
+  font-size: 0.68rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid rgba(74, 124, 89, 0.13);
+}
+
+/* ══════════════════════════════════════════
+   MAPA ROTO
+══════════════════════════════════════════ */
+.mapa-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.mapa-header__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mapa-header__emoji { font-size: 1.8rem; }
+
+.mapa-header__title {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #f7f5f0;
+}
+
+.mapa-header__sub {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  font-size: 0.78rem;
+  color: rgba(247, 245, 240, 0.45);
+}
+
+.mapa-btn-volver {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 8px 16px;
+  color: rgba(247, 245, 240, 0.65);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* Menú dificultad */
+.mapa-menu {
+  text-align: center;
+  animation: fadeUp 0.4s ease;
+}
+
+.mapa-menu__emoji {
+  font-size: 3.5rem;
+  margin-bottom: 14px;
+  animation: float 3s ease-in-out infinite;
+  display: block;
+}
+
+.mapa-menu__title {
+  font-family: 'Lora', serif;
+  font-weight: 600;
+  font-size: 1.3rem;
+  color: #f7f5f0;
+  margin-bottom: 8px;
+}
+
+.mapa-menu__sub {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  font-size: 0.85rem;
+  color: rgba(247, 245, 240, 0.5);
+  margin-bottom: 32px;
+}
+
+.mapa-dificultad-grid {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.mapa-dificultad-btn {
+  padding: 18px 26px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+  border: 2px solid;
+}
+
+.mapa-dificultad-btn__label {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.mapa-dificultad-btn__sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  color: rgba(247, 245, 240, 0.4);
+}
+
+.mapa-btn-comenzar {
+  padding: 13px 36px;
+  background: #b5d5a0;
+  color: #1a2e1a;
+  border: none;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.mapa-btn-comenzar:hover {
+  background: #f7f5f0;
+  transform: translateY(-2px);
+}
+
+/* Juego activo del mapa */
+.mapa-jugando__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.mapa-jugando__score {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  color: rgba(247, 245, 240, 0.55);
+}
+
+.mapa-jugando__score strong { color: #b5d5a0; }
+
+.mapa-jugando__btns {
+  display: flex;
+  gap: 8px;
+}
+
+.mapa-btn-pista {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.mapa-btn-pista--activa {
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.mapa-btn-pista--inactiva {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(247, 245, 240, 0.25);
+  cursor: not-allowed;
+}
+
+.mapa-btn-menu {
+  padding: 7px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 4px;
+  color: rgba(247, 245, 240, 0.5);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.mapa-area {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mapa-tablero__label,
+.mapa-piezas__label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.68rem;
+  color: rgba(181, 213, 160, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.mapa-tablero__grid {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.mapa-zona {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background 0.15s;
+  border-radius: 3px;
+}
+
+.mapa-zona__indicator {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4caf50;
+  box-shadow: 0 0 5px #4caf50;
+}
+
+.mapa-piezas__container {
+  flex: 1;
+  min-width: 180px;
+}
+
+.mapa-piezas__drop {
+  min-height: 110px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-content: flex-start;
+}
+
+.mapa-piezas__vacio {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  color: rgba(247, 245, 240, 0.25);
+  padding: 12px;
+  width: 100%;
+  text-align: center;
+}
+
+.mapa-pieza {
+  cursor: grab;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 3px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Pantalla ganado */
+.mapa-ganado {
+  text-align: center;
+  animation: fadeUp 0.4s ease;
+}
+
+.mapa-ganado__emoji {
+  font-size: 3.5rem;
+  margin-bottom: 14px;
+  animation: float 3s ease-in-out infinite;
+  display: block;
+}
+
+.mapa-ganado__title {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #f7f5f0;
+  margin-bottom: 8px;
+}
+
+.mapa-ganado__sub {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  color: rgba(247, 245, 240, 0.55);
+  margin-bottom: 8px;
+}
+
+.mapa-ganado__guardado {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  color: #b5d5a0;
+  margin-bottom: 16px;
+}
+
+.mapa-ganado__img {
+  max-width: 300px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.mapa-ganado__btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.mapa-btn-otro {
+  padding: 11px 24px;
+  background: #b5d5a0;
+  color: #1a2e1a;
+  border: none;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mapa-btn-nivel {
+  padding: 11px 20px;
+  background: rgba(255, 255, 255, 0.09);
+  color: #f7f5f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Modales del mapa */
+.mapa-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.mapa-pista-box {
+  background: #1a2e1a;
+  border-radius: 8px;
+  padding: 8px;
+  animation: fadeUp 0.3s ease;
+}
+
+.mapa-pista-img {
+  max-width: 80vw;
+  max-height: 68vh;
+  border-radius: 6px;
+  display: block;
+}
+
+.mapa-pista-hint {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(247, 245, 240, 0.4);
+  text-align: center;
+  margin-top: 8px;
+}
+
+.mapa-agotadas-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mapa-agotadas-box {
+  background: #fff;
+  border-radius: 8px;
+  padding: 28px 36px;
+  text-align: center;
+  max-width: 320px;
+  animation: fadeUp 0.3s ease;
+}
+
+.mapa-agotadas-box__emoji { font-size: 2.2rem; margin-bottom: 10px; }
+
+.mapa-agotadas-box__title {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1a2e1a;
+  margin-bottom: 8px;
+}
+
+.mapa-agotadas-box__text {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  color: #6a7a6a;
+  margin-bottom: 18px;
+}
+
+.mapa-agotadas-box__btn {
+  padding: 9px 22px;
+  background: #2d5a27;
+  color: #f7f5f0;
+  border: none;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ══════════════════════════════════════════
+   TRIVIA
+══════════════════════════════════════════ */
+.trivia-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.trivia-header__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trivia-header__title {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #f7f5f0;
+}
+
+.trivia-header__sub {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  font-size: 0.75rem;
+  color: rgba(247, 245, 240, 0.45);
+}
+
+.trivia-header__btns {
+  display: flex;
+  gap: 8px;
+}
+
+.trivia-btn-reiniciar {
+  background: rgba(244, 67, 54, 0.12);
+  border: 1px solid rgba(244, 67, 54, 0.25);
+  border-radius: 4px;
+  padding: 7px 14px;
+  color: #ef9a9a;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.trivia-btn-volver {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 8px 16px;
+  color: rgba(247, 245, 240, 0.65);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* Barra de progreso global */
+.trivia-progreso {
+  margin-bottom: 20px;
+}
+
+.trivia-progreso__top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.trivia-progreso__label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(181, 213, 160, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.trivia-progreso__pts {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #b5d5a0;
+}
+
+.trivia-progreso__bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.trivia-progreso__fill {
+  height: 100%;
+  background: linear-gradient(to right, #4a7c59, #b5d5a0);
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+/* Stats del usuario */
+.trivia-stats {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(181, 213, 160, 0.12);
+  border-radius: 6px;
+  padding: 12px 18px;
+  margin-bottom: 18px;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.trivia-stats__item { text-align: center; }
+
+.trivia-stats__num {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #f7f5f0;
+}
+
+.trivia-stats__label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.65rem;
+  color: rgba(247, 245, 240, 0.38);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Grid de categorías */
+.trivia-categorias {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 10px;
+  animation: fadeUp 0.4s ease;
+}
+
+.trivia-cat-btn {
+  border-radius: 6px;
+  padding: 16px 12px;
+  text-align: center;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.trivia-cat-btn__check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #4caf50;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+}
+
+.trivia-cat-btn__emoji { font-size: 1.7rem; margin-bottom: 7px; }
+
+.trivia-cat-btn__label {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #f7f5f0;
+  margin-bottom: 4px;
+}
+
+.trivia-cat-btn__pts {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.trivia-btn-final {
+  display: block;
+  margin: 20px auto 0;
+  padding: 13px 32px;
+  background: linear-gradient(135deg, #f6d365, #fda085);
+  color: #1a2e1a;
+  border: none;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(246, 211, 101, 0.3);
+  transition: all 0.25s;
+}
+
+.trivia-btn-final:hover { transform: translateY(-2px); }
+
+/* ── Juego pregunta ── */
+.trivia-juego {
+  animation: fadeUp 0.3s ease;
+}
+
+.trivia-juego__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.trivia-juego__cat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  color: rgba(247, 245, 240, 0.55);
+}
+
+.trivia-juego__dots {
+  display: flex;
+  gap: 5px;
+}
+
+.trivia-juego__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.trivia-juego__pregunta-box {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+
+.trivia-juego__pregunta-num {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.66rem;
+  color: rgba(181, 213, 160, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+}
+
+.trivia-juego__pregunta-text {
+  font-family: 'Lora', serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #f7f5f0;
+  line-height: 1.6;
+}
+
+.trivia-juego__opciones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.trivia-opcion {
+  border-radius: 6px;
+  padding: 12px 14px;
+  text-align: left;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.trivia-opcion__letra {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.68rem;
+  flex-shrink: 0;
+}
+
+.trivia-opcion__texto {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+/* ── Resultado categoría ── */
+.trivia-resultado {
+  text-align: center;
+  animation: fadeUp 0.4s ease;
+}
+
+.trivia-resultado__emoji {
+  font-size: 2.8rem;
+  margin-bottom: 10px;
+  animation: float 3s ease-in-out infinite;
+  display: block;
+}
+
+.trivia-resultado__title {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #f7f5f0;
+  margin-bottom: 4px;
+}
+
+.trivia-resultado__sub {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  color: rgba(247, 245, 240, 0.45);
+  margin-bottom: 20px;
+}
+
+.trivia-resultado__box {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  display: inline-block;
+  min-width: 220px;
+  margin-bottom: 16px;
+}
+
+.trivia-resultado__pts-num {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.trivia-resultado__pts-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.66rem;
+  color: rgba(247, 245, 240, 0.35);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.trivia-resultado__aciertos {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.trivia-resultado__aciertos-num {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.trivia-resultado__aciertos-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.62rem;
+  color: rgba(247, 245, 240, 0.3);
+}
+
+.trivia-resultado__divisor {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.trivia-resultado__acumulado {
+  background: rgba(181, 213, 160, 0.1);
+  border: 1px solid rgba(181, 213, 160, 0.2);
+  border-radius: 6px;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trivia-resultado__acumulado-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  color: rgba(247, 245, 240, 0.6);
+}
+
+.trivia-resultado__acumulado-pts {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #b5d5a0;
+}
+
+.trivia-resultado__acumulado-cats {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(247, 245, 240, 0.4);
+}
+
+.trivia-resultado__btns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.trivia-btn-siguiente {
+  padding: 11px 24px;
+  background: #b5d5a0;
+  color: #1a2e1a;
+  border: none;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ── Pantalla final ── */
+.trivia-final {
+  text-align: center;
+  animation: fadeUp 0.4s ease;
+}
+
+.trivia-final__emoji {
+  font-size: 4rem;
+  margin-bottom: 12px;
+  animation: float 3s ease-in-out infinite;
+  display: block;
+}
+
+.trivia-final__title {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #f7f5f0;
+  margin-bottom: 6px;
+}
+
+.trivia-final__sub {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  color: rgba(247, 245, 240, 0.5);
+  margin-bottom: 24px;
+}
+
+.trivia-final__box {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 28px 40px;
+  display: inline-block;
+  margin-bottom: 24px;
+}
+
+.trivia-final__pts {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 4rem;
+  color: #f6d365;
+  line-height: 1;
+}
+
+.trivia-final__pts-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(247, 245, 240, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+
+.trivia-final__bar-wrap {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  width: 220px;
+  margin: 0 auto;
+}
+
+.trivia-final__bar-fill {
+  height: 100%;
+  background: linear-gradient(to right, #f6d365, #4caf50);
+  border-radius: 4px;
+}
+
+.trivia-final__pct {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  color: rgba(247, 245, 240, 0.5);
+  margin-top: 8px;
+}
+
+.trivia-final__cats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.trivia-final__cat-item {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.trivia-final__cat-emoji { font-size: 1.1rem; margin-bottom: 4px; }
+
+.trivia-final__cat-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.65rem;
+  color: rgba(247, 245, 240, 0.45);
+  margin-bottom: 3px;
+}
+
+.trivia-final__cat-pts {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.trivia-final__login-hint {
+  background: rgba(181, 213, 160, 0.07);
+  border: 1px solid rgba(181, 213, 160, 0.14);
+  border-radius: 4px;
+  padding: 9px 14px;
+  margin-bottom: 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  color: rgba(247, 245, 240, 0.55);
+}
+
+.trivia-final__login-link {
+  color: #b5d5a0;
+  font-weight: 600;
+}
+
+.trivia-btn-replay {
+  padding: 12px 32px;
+  background: #b5d5a0;
+  color: #1a2e1a;
+  border: none;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}

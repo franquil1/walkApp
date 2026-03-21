@@ -8,6 +8,8 @@ urlpatterns = [
     # MAPA ROTO
     # ============================
     path('mapa_roto/', views.mostrarMapaRoto, name='mapa_roto'),
+    path('api/guardar-mapa/', views.guardar_resultado_mapa, name='guardar_mapa_roto'),
+    
 
     # ============================
     # TRVIA

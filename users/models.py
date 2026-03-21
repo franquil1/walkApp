@@ -4,10 +4,14 @@ from django.contrib.auth.models import AbstractUser
 
 
 class UsuarioPersonalizado(AbstractUser):
-    """
-    Modelo de usuario personalizado que extiende AbstractUser.
-    """
     email = models.EmailField(unique=True)
+    rol = models.CharField(max_length=20, default='usuario')
+    bio = models.TextField(blank=True, null=True)
+    foto_perfil = models.ImageField(upload_to='fotos_perfil/', blank=True, null=True)
+
+    @property
+    def es_admin(self):
+        return self.rol == 'admin' or self.is_staff
 
     class Meta:
         verbose_name = "Usuario"

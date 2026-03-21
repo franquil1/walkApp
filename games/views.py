@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.utils import timezone
 import json
-from .models import EstadisticasUsuarioTrivia, HistorialJuegoTrivia
+from .models import EstadisticasUsuarioTrivia, HistorialJuegoTrivia, HistorialMapaRoto
 #====================================
 from rest_framework import serializers
 from rest_framework import viewsets
@@ -22,13 +22,6 @@ def mostrarJuegos(request):
 
 def mostrarMapaRoto(request):
     return render(request, 'mapa_roto/mapa_roto.html')
-
-
-
-
-
-
-
 
 """ ==========| JUEGO TRIVIA POPAYAN |=========="""
 
@@ -234,3 +227,45 @@ class EstadisticasViewSet(viewsets.ModelViewSet):
     queryset = EstadisticasUsuarioTrivia.objects.all().order_by('-total_puntos')
     serializer_class = EstadisticasSerializer
     permission_classes = [IsAuthenticated]
+
+# ===================================
+# API MAPA ROTO — agregar en views.py
+# ===================================
+# Importar el modelo nuevo arriba: from .models import HistorialMapaRoto
+
+@require_http_methods(["POST"])
+def guardar_resultado_mapa(request):
+    """
+    Endpoint para guardar los resultados del Mapa Roto
+    """
+    try:
+        data = json.loads(request.body)
+
+        dificultad      = data.get('dificultad')
+        duracion        = data.get('duracion_segundos')
+        pistas_usadas   = int(data.get('pistas_usadas', 0))
+        imagen_mapa     = data.get('imagen_mapa', '')
+
+        if not dificultad or dificultad not in ['facil', 'normal', 'dificil']:
+            return JsonResponse({'success': False, 'error': 'Dificultad inválida'}, status=400)
+
+        if request.user.is_authenticated:
+            juego = HistorialMapaRoto.objects.create(
+                usuario=request.user,
+                dificultad=dificultad,
+                duracion_segundos=duracion,
+                pistas_usadas=pistas_usadas,
+                imagen_mapa=imagen_mapa,
+            )
+            return JsonResponse({
+                'success': True,
+                'message': 'Mapa Roto guardado',
+                'juego_id': juego.id,
+            })
+        else:
+            return JsonResponse({'success': True, 'guest': True, 'message': 'No guardado — usuario invitado'})
+
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON inválido'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

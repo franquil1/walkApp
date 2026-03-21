@@ -1,8 +1,15 @@
-from rest_framework.routers import DefaultRouter
-from .api_views import PublicacionViewSet, ComentarioViewSet
+from django.urls import path
+from . import api_views
 
-router = DefaultRouter()
-router.register(r'comunidad', PublicacionViewSet)
-router.register(r'comunidad', ComentarioViewSet)
+urlpatterns = [
+    path('publicaciones/', api_views.api_listar_publicaciones),
+    path('publicaciones/crear/', api_views.api_crear_publicacion),
+    path('publicaciones/<int:pub_id>/eliminar/', api_views.api_eliminar_publicacion),
+    path('publicaciones/<int:pub_id>/like/', api_views.api_toggle_like),
+    path('publicaciones/<int:pub_id>/comentarios/', api_views.api_comentarios_publicacion),
+    path('publicaciones/<int:pub_id>/comentarios/crear/', api_views.api_crear_comentario_pub),
+    path('publicaciones/<int:pub_id>/comentarios/<int:comentario_id>/eliminar/', api_views.api_eliminar_comentario_pub),
 
-urlpatterns = router.urls
+    path('notificaciones/', api_views.api_mis_notificaciones),
+    path('notificaciones/leer/', api_views.api_marcar_leidas),
+]

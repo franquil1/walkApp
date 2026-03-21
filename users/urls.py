@@ -1,5 +1,6 @@
 from django.urls import path, reverse_lazy
 from django.contrib.auth import views as auth_views
+from . import api_views
 from . import views
 
 app_name = 'users'
@@ -52,6 +53,12 @@ urlpatterns = [
     # ============================
     path('perfil_editar/', views.editar_perfil, name='editar_perfil'),
     path('perfil_usuario/', views.perfil_usuario, name='perfil_usuario'),
-    
 
+    path('api/auth/login/',    api_views.api_login,    name='api_login'),
+    path('api/auth/registro/', api_views.api_registro, name='api_registro'),
+    path('api/auth/perfil/',   api_views.api_perfil,   name='api_perfil'),
+    path('api/auth/perfil/actualizar/', api_views.api_actualizar_perfil, name='api_actualizar_perfil'),
+    path('api/auth/usuarios/', api_views.api_lista_usuarios, name='api_lista_usuarios'),
+    path('api/auth/usuarios/<int:user_id>/rol/', api_views.api_cambiar_rol, name='api_cambiar_rol'),
+    
 ]
