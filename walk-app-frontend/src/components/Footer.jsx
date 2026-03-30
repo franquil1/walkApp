@@ -8,10 +8,10 @@ export default function Footer() {
   const LINKS = {
     Explorar: [
       { label: "Inicio",     path: "/" },
-      { label: "Rutas",      path: "/rutas" },
-      { label: "Comunidad",  path: "/comunidad" },
-      { label: "Ranking",    path: "/ranking" },
-      { label: "Juegos",     path: "/juegos" },
+      { label: "Comunidad",      path: "/comunidad" },
+      { label: "Juegos",  path: "/juegos" },
+      { label: "Rutas",    path: "/rutas" },
+      { label: "Ranking",     path: "/ranking" },
     ],
     Cuenta: [
       { label: "Iniciar Sesión", path: "/login" },

@@ -202,6 +202,54 @@ def api_actualizar_posicion(request):
         return Response({'success': False, 'error': str(e)}, status=400)
 
 
+# ---------------------------------
+# API: ESTADÍSTICAS GLOBALES — público
+# ---------------------------------
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_estadisticas_globales(request):
+    try:
+        now = timezone.now()
+        start_of_week = now - timedelta(days=now.weekday())
+        start_of_last_week = start_of_week - timedelta(days=7)
+
+        # Usuario más activo: mayor días activos esta semana
+        mas_activo_profile = UserProfile.objects.order_by('-dias_activos').first()
+        mas_activo = None
+        if mas_activo_profile:
+            mas_activo = {
+                'username': mas_activo_profile.user.username,
+                'dias_activos': mas_activo_profile.dias_activos,
+                'distancia_km': round(mas_activo_profile.distancia_total_km, 2),
+            }
+
+        # Puntos totales esta semana (suma de todos los usuarios)
+        puntos_esta_semana = sum(
+            p.puntos_semanales for p in UserProfile.objects.all()
+        )
+
+        # Puntos semana anterior: suma de walks de la semana pasada
+        walks_semana_anterior = Walk.objects.filter(
+            fecha__gte=start_of_last_week.date(),
+            fecha__lt=start_of_week.date()
+        )
+        puntos_semana_anterior = sum(w.puntos_caminata for w in walks_semana_anterior)
+
+        diferencia = puntos_esta_semana - puntos_semana_anterior
+
+        return Response({
+            'mas_activo': mas_activo,
+            'comparativa': {
+                'puntos_esta_semana': puntos_esta_semana,
+                'puntos_semana_anterior': puntos_semana_anterior,
+                'diferencia': diferencia,
+            }
+        })
+    except Exception as e:
+        print(f"Error en api_estadisticas_globales: {e}")
+        return Response({}, status=500)
+
+
 @staff_member_required
 def admin_rutas(request):
     rutas = Ruta.objects.all().order_by('-fecha_creacion')

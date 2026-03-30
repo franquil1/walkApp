@@ -1,4 +1,5 @@
 from rest_framework import viewsets, status
+import json
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -43,14 +44,15 @@ class UserRutaViewSet(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
 def api_crear_ruta(request):
-    """
-    Crea una nueva ruta. Acepta multipart/form-data para subir imagen.
-    POST /api/rutas/crear/
-    Body: { nombre_ruta, descripcion, longitud, dificultad, duracion_estimada,
-            ubicacion, ubicacion_inicio, ubicacion_fin, puntos_interes,
-            coordenadas_ruta (JSON string), imagen (file, opcional) }
-    """
-    serializer = RutaSerializer(data=request.data, context={'request': request})
+    data = request.data.copy()
+    coordenadas_raw = data.get('coordenadas_ruta')
+    if coordenadas_raw and isinstance(coordenadas_raw, str):
+        try:
+            data['coordenadas_ruta'] = json.loads(coordenadas_raw)
+        except (json.JSONDecodeError, ValueError):
+            data['coordenadas_ruta'] = None
+
+    serializer = RutaSerializer(data=data, context={'request': request})
     if serializer.is_valid():
         serializer.save(creada_por=request.user)
         return Response({'mensaje': 'Ruta creada exitosamente.', 'ruta': serializer.data}, status=201)
@@ -259,3 +261,53 @@ def api_mis_recorridos(request):
         'total_km': round(total_km, 2),
         'total_puntos': total_puntos,
     })
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def api_comentarios_ruta(request, ruta_id):
+    """
+    GET  /api/rutas/<id>/comentarios/  — listar comentarios
+    POST /api/rutas/<id>/comentarios/  — crear comentario (requiere auth)
+    """
+    try:
+        ruta = Ruta.objects.get(id=ruta_id)
+    except Ruta.DoesNotExist:
+        return Response({'error': 'Ruta no encontrada.'}, status=404)
+
+    if request.method == 'GET':
+        # Busca el modelo de comentarios si existe, si no devuelve lista vacía
+        try:
+            from ranking.backend.community.models import Comentario
+            comentarios = Comentario.objects.filter(ruta=ruta).order_by('-fecha_creacion')
+            data = [
+                {
+                    'id': c.id,
+                    'usuario': c.usuario.username,
+                    'texto': c.texto,
+                    'fecha': str(c.fecha_creacion),
+                }
+                for c in comentarios
+            ]
+            return Response({'comentarios': data, 'total': len(data)})
+        except Exception:
+            return Response({'comentarios': [], 'total': 0})
+
+    # POST — crear comentario
+    if not request.user.is_authenticated:
+        return Response({'error': 'Debes iniciar sesión para comentar.'}, status=401)
+
+    texto = request.data.get('texto', '').strip()
+    if not texto:
+        return Response({'error': 'El comentario no puede estar vacío.'}, status=400)
+
+    try:
+        from ranking.backend.community.models import Comentario
+        c = Comentario.objects.create(ruta=ruta, usuario=request.user, texto=texto)
+        return Response({
+            'id': c.id,
+            'usuario': c.usuario.username,
+            'texto': c.texto,
+            'fecha': str(c.fecha_creacion),
+        }, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)

@@ -5,6 +5,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./Rutas.css";
 
+const ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjI3NDQ2OTVkYmM3MzQ3OThiMzY4MmI1YjM1ZjEyNjM1IiwiaCI6Im11cm11cjY0In0=";
+
 const DIFICULTAD_COLORS = {
   FACIL:    { bg: "#e8f5e9", text: "#2d5a27", border: "#a5d6a7", dot: "#4caf50" },
   MODERADO: { bg: "#fff8e1", text: "#e65100", border: "#ffcc80", dot: "#ff9800" },
@@ -27,11 +29,79 @@ const DIFICULTADES_OPT = [
   { value: "EXTREMO",  label: "Extremo",  color: "#9c27b0", emoji: "🟣" },
 ];
 
-function MapaDibujo({ coordenadas, onChange }) {
+async function calcularRutaORS(waypoints) {
+  if (waypoints.length < 2) return null;
+
+  const coordinates = waypoints.map(([lat, lng]) => [lng, lat]);
+  try {
+    const res = await fetch("https://api.openrouteservice.org/v2/directions/foot-hiking/geojson", {
+      method: "POST",
+      headers: {
+        "Authorization": ORS_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ coordinates }),
+    });
+    if (!res.ok) throw new Error(`ORS error ${res.status}`);
+    const data = await res.json();
+
+    const coords = data.features[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+    const distanceM = data.features[0].properties.summary.distance; // metros
+    const durationS = data.features[0].properties.summary.duration; // segundos
+    return { coords, distanceKm: (distanceM / 1000).toFixed(2), durationMin: Math.round(durationS / 60) };
+  } catch (err) {
+    console.error("Error ORS:", err);
+    return null;
+  }
+}
+
+function MapaDibujo({ coordenadas, onChange, onRutaInfo }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const markersRef = useRef([]);
-  const polylineRef = useRef(null);
+  const polylineRef = useRef(null);  
+  const straightLineRef = useRef(null);
+  const [calculando, setCalculando] = useState(false);
+  const [orsInfo, setOrsInfo] = useState(null);
+  const [orsError, setOrsError] = useState(false);
+
+  const waypointsRef = useRef([]);
+
+  const dibujarRuta = useCallback(async (waypoints, map) => {
+    const L = window.L;
+    if (!map || waypoints.length < 2) return;
+    setCalculando(true);
+    setOrsError(false);
+
+
+    if (straightLineRef.current) map.removeLayer(straightLineRef.current);
+    straightLineRef.current = L.polyline(waypoints, {
+      color: "#4a7c59", weight: 2, opacity: 0.5, dashArray: "6 6",
+    }).addTo(map);
+
+    const resultado = await calcularRutaORS(waypoints);
+    setCalculando(false);
+
+
+    if (straightLineRef.current) { map.removeLayer(straightLineRef.current); straightLineRef.current = null; }
+
+    if (resultado) {
+      if (polylineRef.current) map.removeLayer(polylineRef.current);
+      polylineRef.current = L.polyline(resultado.coords, {
+        color: "#2d5a27", weight: 4, opacity: 0.9,
+      }).addTo(map);
+      setOrsInfo(resultado);
+      if (onRutaInfo) onRutaInfo(resultado);
+
+      onChange(waypoints);
+    } else {
+
+      setOrsError(true);
+      if (polylineRef.current) map.removeLayer(polylineRef.current);
+      polylineRef.current = L.polyline(waypoints, { color: "#f44336", weight: 3, opacity: 0.75, dashArray: "8 4" }).addTo(map);
+      onChange(waypoints);
+    }
+  }, [onChange, onRutaInfo]);
 
   useEffect(() => {
     if (mapInstance.current) return;
@@ -43,22 +113,32 @@ function MapaDibujo({ coordenadas, onChange }) {
     const inicializar = () => {
       const L = window.L;
       if (!mapRef.current || mapInstance.current) return;
-      const map = L.map(mapRef.current, { center: [2.4448, -76.6147], zoom: 14, scrollWheelZoom: false });
+      const map = L.map(mapRef.current, { center: [2.4448, -76.6147], zoom: 14, scrollWheelZoom: true });
       mapInstance.current = map;
-      window._coordsTemp = [];
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map);
-      map.on("click", (e) => {
+      waypointsRef.current = [];
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap", maxZoom: 19,
+      }).addTo(map);
+
+      map.on("click", async (e) => {
         const { lat, lng } = e.latlng;
-        const nuevas = [...(window._coordsTemp || []), [lat, lng]];
-        window._coordsTemp = nuevas;
-        const idx = nuevas.length - 1;
+        const nuevos = [...waypointsRef.current, [lat, lng]];
+        waypointsRef.current = nuevos;
+        const idx = nuevos.length - 1;
+
         const color = idx === 0 ? "#2d5a27" : "#4a7c59";
-        const marker = L.circleMarker([lat, lng], { radius: idx === 0 ? 9 : 6, fillColor: color, color: "#fff", weight: 2, fillOpacity: 1 }).addTo(map);
+        const marker = L.circleMarker([lat, lng], {
+          radius: idx === 0 ? 10 : 7, fillColor: color, color: "#fff", weight: 2, fillOpacity: 1,
+        }).addTo(map);
         marker.bindTooltip(idx === 0 ? "🚀 Inicio" : `Punto ${idx + 1}`, { permanent: false });
         markersRef.current.push(marker);
-        if (polylineRef.current) map.removeLayer(polylineRef.current);
-        if (nuevas.length > 1) polylineRef.current = L.polyline(nuevas, { color: "#2d5a27", weight: 3, opacity: 0.85 }).addTo(map);
-        onChange(nuevas);
+
+        if (nuevos.length >= 2) {
+          await dibujarRuta(nuevos, map);
+        } else {
+          onChange(nuevos);
+        }
       });
     };
 
@@ -69,39 +149,74 @@ function MapaDibujo({ coordenadas, onChange }) {
       script.onload = inicializar;
       document.body.appendChild(script);
     }
-    return () => { window._coordsTemp = []; if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; } };
-  }, [onChange]);
 
-  const handleDeshacer = () => {
-    const L = window.L; const map = mapInstance.current;
+    return () => {
+      waypointsRef.current = [];
+      if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; }
+    };
+  }, [dibujarRuta, onChange]);
+
+  const handleDeshacer = async () => {
+    const map = mapInstance.current;
     if (!map || !markersRef.current.length) return;
     map.removeLayer(markersRef.current.pop());
-    const nuevas = (window._coordsTemp || []).slice(0, -1);
-    window._coordsTemp = nuevas;
-    if (polylineRef.current) map.removeLayer(polylineRef.current);
-    if (nuevas.length > 1) polylineRef.current = L.polyline(nuevas, { color: "#2d5a27", weight: 3, opacity: 0.85 }).addTo(map);
-    onChange(nuevas);
+    const nuevos = waypointsRef.current.slice(0, -1);
+    waypointsRef.current = nuevos;
+
+    if (polylineRef.current) { map.removeLayer(polylineRef.current); polylineRef.current = null; }
+    if (straightLineRef.current) { map.removeLayer(straightLineRef.current); straightLineRef.current = null; }
+    setOrsInfo(null); setOrsError(false);
+
+    if (nuevos.length >= 2) {
+      await dibujarRuta(nuevos, map);
+    } else {
+      onChange(nuevos);
+    }
   };
 
   const handleLimpiar = () => {
     const map = mapInstance.current; if (!map) return;
     markersRef.current.forEach(m => map.removeLayer(m)); markersRef.current = [];
     if (polylineRef.current) { map.removeLayer(polylineRef.current); polylineRef.current = null; }
-    window._coordsTemp = []; onChange([]);
+    if (straightLineRef.current) { map.removeLayer(straightLineRef.current); straightLineRef.current = null; }
+    waypointsRef.current = [];
+    setOrsInfo(null); setOrsError(false);
+    onChange([]);
   };
+
+  const nPuntos = coordenadas.length;
 
   return (
     <div>
       <div ref={mapRef} className="mapa-dibujo__map" />
+
+      {}
+      {calculando && (
+        <div className="mapa-ors-status mapa-ors-status--calculando">
+          ⏳ Calculando ruta real con OpenRouteService…
+        </div>
+      )}
+      {orsError && (
+        <div className="mapa-ors-status mapa-ors-status--error">
+          ⚠️ No se pudo calcular la ruta real. Se muestra trayecto directo.
+        </div>
+      )}
+      {orsInfo && !calculando && (
+        <div className="mapa-ors-info">
+          <span>🗺️ Distancia real: <strong>{orsInfo.distanceKm} km</strong></span>
+          <span>⏱ Tiempo estimado (senderismo): <strong>{orsInfo.durationMin} min</strong></span>
+        </div>
+      )}
+
       <div className="mapa-dibujo__controls">
         <span className="mapa-dibujo__hint">
-          {coordenadas.length === 0 && "Haz clic en el mapa para trazar el recorrido"}
-          {coordenadas.length === 1 && "1 punto marcado — sigue haciendo clic"}
-          {coordenadas.length > 1 && `${coordenadas.length} puntos · ${coordenadas.length - 1} segmento${coordenadas.length > 2 ? "s" : ""}`}
+          {nPuntos === 0 && "Haz clic en el mapa para trazar el recorrido"}
+          {nPuntos === 1 && "1 punto marcado — agrega otro para calcular la ruta"}
+          {nPuntos > 1 && `${nPuntos} waypoints · ruta calculada por ORS`}
         </span>
         <div className="mapa-dibujo__btns">
-          <button type="button" onClick={handleDeshacer} disabled={coordenadas.length === 0} className="mapa-dibujo__btn mapa-dibujo__btn--undo">↩ Deshacer</button>
-          <button type="button" onClick={handleLimpiar} disabled={coordenadas.length === 0} className="mapa-dibujo__btn mapa-dibujo__btn--clear">🗑 Limpiar</button>
+          <button type="button" onClick={handleDeshacer} disabled={nPuntos === 0 || calculando} className="mapa-dibujo__btn mapa-dibujo__btn--undo">↩ Deshacer</button>
+          <button type="button" onClick={handleLimpiar} disabled={nPuntos === 0 || calculando} className="mapa-dibujo__btn mapa-dibujo__btn--clear">🗑 Limpiar</button>
         </div>
       </div>
     </div>
@@ -110,13 +225,24 @@ function MapaDibujo({ coordenadas, onChange }) {
 
 function ModalCrearRuta({ onClose, onCreada }) {
   const fileRef = useRef(null);
-  const [form, setForm] = useState({ nombre_ruta: "", descripcion: "", longitud: "", dificultad: "MODERADO", duracion_estimada: "", ubicacion: "", ubicacion_inicio: "", ubicacion_fin: "", puntos_interes: "" });
+  const [form, setForm] = useState({
+    nombre_ruta: "", descripcion: "", longitud: "", dificultad: "MODERADO",
+    duracion_estimada: "", ubicacion: "", ubicacion_inicio: "", ubicacion_fin: "", puntos_interes: "",
+  });
   const [imagen, setImagen] = useState(null);
   const [preview, setPreview] = useState(null);
   const [coordenadas, setCoordenadas] = useState([]);
   const [enviando, setEnviando] = useState(false);
   const [errores, setErrores] = useState({});
   const [exito, setExito] = useState(false);
+
+  const handleRutaInfo = useCallback((info) => {
+    setForm(prev => ({
+      ...prev,
+      longitud: prev.longitud || info.distanceKm,
+      duracion_estimada: prev.duracion_estimada || `${info.durationMin} min`,
+    }));
+  }, []);
 
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onClose(); };
@@ -207,12 +333,12 @@ function ModalCrearRuta({ onClose, onCreada }) {
               <div className="modal-grid-2">
                 <div className="modal-field">
                   <label className="modal-label">Longitud (km) *</label>
-                  <input name="longitud" type="number" step="0.1" min="0" value={form.longitud} onChange={handleChange} placeholder="Ej: 12.5" className={inputClass("longitud")} />
+                  <input name="longitud" type="number" step="0.1" min="0" value={form.longitud} onChange={handleChange} placeholder="Ej: 12.5 (se llena solo con ORS)" className={inputClass("longitud")} />
                   {errores.longitud && <div className="modal-field-error">{errores.longitud}</div>}
                 </div>
                 <div className="modal-field">
                   <label className="modal-label">Duración Estimada</label>
-                  <input name="duracion_estimada" value={form.duracion_estimada} onChange={handleChange} placeholder="Ej: 3-4 horas" className="modal-input modal-input--normal" />
+                  <input name="duracion_estimada" value={form.duracion_estimada} onChange={handleChange} placeholder="Se llena auto al trazar" className="modal-input modal-input--normal" />
                 </div>
               </div>
               <div className="modal-field">
@@ -275,9 +401,11 @@ function ModalCrearRuta({ onClose, onCreada }) {
 
           <div className="modal-section modal-section--last">
             <h4 className="modal-section__title">🗺️ Trazado de la Ruta</h4>
-            <p className="modal-section__hint">Opcional — haz clic en el mapa para marcar el recorrido punto a punto. El primer punto será el inicio.</p>
-            <MapaDibujo coordenadas={coordenadas} onChange={setCoordenadas} />
-            {coordenadas.length > 1 && <div className="modal-trazado-ok">✅ Trazado con {coordenadas.length} puntos guardado</div>}
+            <p className="modal-section__hint">
+              Haz clic en el mapa para añadir waypoints. Con 2+ puntos, <strong>OpenRouteService</strong> calculará la ruta real por senderos y rellenará automáticamente la distancia y duración.
+            </p>
+            <MapaDibujo coordenadas={coordenadas} onChange={setCoordenadas} onRutaInfo={handleRutaInfo} />
+            {coordenadas.length > 1 && <div className="modal-trazado-ok">✅ Trazado con {coordenadas.length} waypoints guardado</div>}
           </div>
         </div>
 
@@ -314,8 +442,10 @@ function RutaCardGrid({ ruta, index, favoritos, onToggleFavorito, user }) {
   const isFav = favoritos.includes(ruta.id);
   const diff = DIFICULTAD_COLORS[ruta.dificultad] || DIFICULTAD_COLORS.MODERADO;
   return (
-    <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="ruta-card-grid"
-      style={{ boxShadow: hovered ? "0 24px 60px rgba(26,46,26,0.18)" : "0 4px 20px rgba(26,46,26,0.07)", transform: hovered ? "translateY(-8px)" : "none" }}>
+  <a href={`/rutas/${ruta.id}/`}
+    onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+    className="ruta-card-grid"
+    style={{ boxShadow: hovered ? "0 24px 60px rgba(26,46,26,0.18)" : "0 4px 20px rgba(26,46,26,0.07)", transform: hovered ? "translateY(-8px)" : "none", textDecoration: "none", display: "block" }}>
       <div className="ruta-card-grid__thumb" style={{ background: ruta.imagen_url ? "transparent" : RUTA_GRADIENTS[index % RUTA_GRADIENTS.length] }}>
         {ruta.imagen_url
           ? <img src={ruta.imagen_url} alt={ruta.nombre_ruta} className="ruta-card-grid__img" style={{ transform: hovered ? "scale(1.05)" : "scale(1)" }} />
@@ -328,7 +458,7 @@ function RutaCardGrid({ ruta, index, favoritos, onToggleFavorito, user }) {
             {DIFICULTAD_LABELS[ruta.dificultad] || ruta.dificultad}
           </span>
         </div>
-        <button onClick={e => { e.stopPropagation(); onToggleFavorito(ruta.id); }}
+        <button onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleFavorito(ruta.id); }}
           className={`ruta-card-grid__fav-btn ${isFav ? "ruta-card-grid__fav-btn--on" : "ruta-card-grid__fav-btn--off"}`}
           style={{ cursor: user ? "pointer" : "not-allowed" }}>
           {isFav ? "❤️" : "🤍"}
@@ -343,9 +473,9 @@ function RutaCardGrid({ ruta, index, favoritos, onToggleFavorito, user }) {
           {ruta.duracion_estimada && <div className="ruta-card-grid__meta-item"><span>⏱</span><span className="ruta-card-grid__meta-dur">{ruta.duracion_estimada}</span></div>}
           {ruta.ubicacion && <div className="ruta-card-grid__meta-item"><span>📍</span><span className="ruta-card-grid__meta-loc">{ruta.ubicacion.substring(0, 20)}{ruta.ubicacion.length > 20 ? "..." : ""}</span></div>}
         </div>
-        <a href={`/rutas/${ruta.id}/`} className="ruta-card-grid__btn" style={{ background: hovered ? "#1e3d1a" : "#2d5a27" }}>Ver Ruta →</a>
+        <div className="ruta-card-grid__btn" style={{ background: hovered ? "#1e3d1a" : "#2d5a27" }}>Ver Ruta →</div>
       </div>
-    </div>
+    </a>
   );
 }
 
@@ -354,8 +484,10 @@ function RutaCardList({ ruta, index, favoritos, onToggleFavorito, user }) {
   const isFav = favoritos.includes(ruta.id);
   const diff = DIFICULTAD_COLORS[ruta.dificultad] || DIFICULTAD_COLORS.MODERADO;
   return (
-    <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="ruta-card-list"
-      style={{ boxShadow: hovered ? "0 12px 40px rgba(26,46,26,0.14)" : "0 2px 12px rgba(26,46,26,0.06)", transform: hovered ? "translateX(6px)" : "none" }}>
+    <a href={`/rutas/${ruta.id}/`}
+      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+      className="ruta-card-list"
+      style={{ boxShadow: hovered ? "0 12px 40px rgba(26,46,26,0.14)" : "0 2px 12px rgba(26,46,26,0.06)", transform: hovered ? "translateX(6px)" : "none", textDecoration: "none", display: "grid", gridTemplateColumns: "200px 1fr" }}>
       <div className="ruta-card-list__thumb" style={{ background: ruta.imagen_url ? "transparent" : RUTA_GRADIENTS[index % RUTA_GRADIENTS.length] }}>
         {ruta.imagen_url
           ? <img src={ruta.imagen_url} alt={ruta.nombre_ruta} className="ruta-card-list__img" style={{ transform: hovered ? "scale(1.08)" : "scale(1)" }} />
@@ -371,7 +503,7 @@ function RutaCardList({ ruta, index, favoritos, onToggleFavorito, user }) {
                 <span className="ruta-card-list__badge-dot" style={{ background: diff.dot }} />
                 {DIFICULTAD_LABELS[ruta.dificultad] || ruta.dificultad}
               </span>
-              <button onClick={e => { e.stopPropagation(); onToggleFavorito(ruta.id); }} className="ruta-card-list__fav-btn"
+              <button onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleFavorito(ruta.id); }} className="ruta-card-list__fav-btn"
                 style={{ transform: isFav ? "scale(1.2)" : "scale(1)" }}>
                 {isFav ? "❤️" : "🤍"}
               </button>
@@ -385,10 +517,10 @@ function RutaCardList({ ruta, index, favoritos, onToggleFavorito, user }) {
             {ruta.duracion_estimada && <span className="ruta-card-list__meta-dur">⏱ {ruta.duracion_estimada}</span>}
             <span className="ruta-card-list__meta-views">👁 {ruta.vistas || 0}</span>
           </div>
-          <a href={`/rutas/${ruta.id}/`} className="ruta-card-list__btn" style={{ background: hovered ? "#1e3d1a" : "#2d5a27" }}>Ver Ruta →</a>
+          <div className="ruta-card-list__btn" style={{ background: hovered ? "#1e3d1a" : "#2d5a27" }}>Ver Ruta →</div>
         </div>
       </div>
-    </div>
+    </a>
   );
 }
 
@@ -467,7 +599,6 @@ export default function Rutas() {
       <Navbar />
       {modalAbierta && <ModalCrearRuta onClose={() => setModalAbierta(false)} onCreada={handleRutaCreada} />}
 
-      {}
       <div className="rutas-hero" ref={headerRef}>
         <div className="rutas-hero__orb rutas-hero__orb--1" />
         <div className="rutas-hero__orb rutas-hero__orb--2" />
@@ -489,7 +620,6 @@ export default function Rutas() {
         </div>
       </div>
 
-      {}
       <div className="rutas-content">
         <div className="rutas-filters">
           <div className="rutas-filters__row">

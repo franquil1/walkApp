@@ -120,11 +120,15 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 16px;
+  gap: 20px;
+  margin-top: 30px;
 }
 
 .podio-item {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .podio-username {
@@ -632,6 +636,79 @@
   display: inline-block;
 }
 
+/* ── Estadísticas globales ── */
+.stats-globales-wrap {
+  margin-top: 24px;
+  padding: 20px 24px;
+  background: #fff;
+  border: 1px solid rgba(74, 124, 89, 0.1);
+  border-radius: 6px;
+}
+
+.stats-globales-titulo {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1a2e1a;
+  margin-bottom: 16px;
+}
+
+.stats-globales-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-global-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #f7f5f0;
+  border: 1px solid rgba(74, 124, 89, 0.08);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.stat-global-icono {
+  font-size: 1.4rem;
+  line-height: 1;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.stat-global-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.stat-global-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #9a9a9a;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stat-global-valor {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1a2e1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-global-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  color: #9a9a9a;
+  line-height: 1.4;
+}
+
 @media (max-width: 768px) {
   .ranking-layout {
     grid-template-columns: 1fr;
@@ -671,4 +748,28 @@
   .podio-wrap { gap: 8px; }
 
   .sidebar-sticky { position: static; }
+
+  .stats-globales-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.trivia-categorias {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 20px;
+  margin: 20px 0;
+  padding: 10px;
+}
+
+@media (max-width: 768px) {
+  .trivia-categorias {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .trivia-categorias {
+    grid-template-columns: 1fr;
+  }
 }

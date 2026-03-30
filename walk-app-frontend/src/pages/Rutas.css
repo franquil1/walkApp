@@ -1220,3 +1220,56 @@ textarea:focus {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* ── OpenRouteService status ── */
+.mapa-ors-status {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+}
+
+.mapa-ors-status--calculando {
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid rgba(255, 152, 0, 0.25);
+  color: #ffcc80;
+}
+
+.mapa-ors-status--error {
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  color: #f87171;
+}
+
+.mapa-ors-info {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  color: #a5d6a7;
+}
+
+.mapa-ors-info strong { color: #b5d5a0; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .rutas-hero    { padding: 90px 20px 48px; }
+  .rutas-content { padding: 24px 16px 60px; }
+  .rutas-grid    { grid-template-columns: 1fr; }
+  .ruta-card-list { grid-template-columns: 140px 1fr; }
+  .modal-grid-2  { grid-template-columns: 1fr; }
+  .modal-dificultad-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .rutas-hero__stats { gap: 16px; }
+  .ruta-card-list    { grid-template-columns: 1fr; }
+  .ruta-card-list__thumb { height: 160px; }
+}

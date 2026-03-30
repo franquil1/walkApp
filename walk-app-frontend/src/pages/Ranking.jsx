@@ -61,6 +61,7 @@ function SkeletonRow() {
 export default function Ranking() {
   const [ranking, setRanking] = useState([]);
   const [misStats, setMisStats] = useState(null);
+  const [statsGlobales, setStatsGlobales] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [cargandoStats, setCargandoStats] = useState(false);
   const [error, setError] = useState(null);
@@ -102,11 +103,20 @@ export default function Ranking() {
     } catch {} finally { setCargandoStats(false); }
   }, []);
 
+  const fetchStatsGlobales = useCallback(async () => {
+    try {
+      const res = await api.get("/api/ranking/estadisticas-globales/");
+      setStatsGlobales(res.data);
+    } catch {}
+  }, []);
+
   useEffect(() => {
-    fetchRanking(); fetchMisStats();
-    intervalRef.current = setInterval(() => { fetchRanking(); fetchMisStats(); }, 15000);
+    fetchRanking(); fetchMisStats(); fetchStatsGlobales();
+    intervalRef.current = setInterval(() => {
+      fetchRanking(); fetchMisStats(); fetchStatsGlobales();
+    }, 15000);
     return () => clearInterval(intervalRef.current);
-  }, [fetchRanking, fetchMisStats]);
+  }, [fetchRanking, fetchMisStats, fetchStatsGlobales]);
 
   const rankingFiltrado = ranking.filter((r) =>
     r.username.toLowerCase().includes(buscar.toLowerCase()) ||
@@ -269,6 +279,52 @@ export default function Ranking() {
                     </div>
                   );
                 })}
+              </div>
+            )}
+
+            {/* ── Estadísticas globales ── */}
+            {!cargando && !error && statsGlobales && (
+              <div className="stats-globales-wrap" style={{ animation: "fadeUp 0.4s ease 0.2s both" }}>
+                <h3 className="stats-globales-titulo">📈 Estadísticas de la semana</h3>
+                <div className="stats-globales-grid">
+
+                  {/* Usuario más activo */}
+                  <div className="stat-global-card">
+                    <div className="stat-global-icono">🔥</div>
+                    <div className="stat-global-info">
+                      <span className="stat-global-label">Más activo esta semana</span>
+                      <span className="stat-global-valor">
+                        {statsGlobales.mas_activo?.username || "—"}
+                      </span>
+                      <span className="stat-global-sub">
+                        {statsGlobales.mas_activo?.dias_activos || 0} días · {statsGlobales.mas_activo?.distancia_km?.toFixed(1) || "0.0"} km
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Comparativa semanal */}
+                  <div className="stat-global-card">
+                    <div className="stat-global-icono">
+                      {(statsGlobales.comparativa?.diferencia ?? 0) >= 0 ? "📈" : "📉"}
+                    </div>
+                    <div className="stat-global-info">
+                      <span className="stat-global-label">vs semana anterior</span>
+                      <span
+                        className="stat-global-valor"
+                        style={{
+                          color: (statsGlobales.comparativa?.diferencia ?? 0) >= 0 ? "#2d5a27" : "#c0392b"
+                        }}
+                      >
+                        {(statsGlobales.comparativa?.diferencia ?? 0) >= 0 ? "+" : ""}
+                        {statsGlobales.comparativa?.diferencia?.toLocaleString() || 0} pts
+                      </span>
+                      <span className="stat-global-sub">
+                        Esta semana: {statsGlobales.comparativa?.puntos_esta_semana?.toLocaleString() || 0} pts · Semana anterior: {statsGlobales.comparativa?.puntos_semana_anterior?.toLocaleString() || 0} pts
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
               </div>
             )}
 
