@@ -14,8 +14,8 @@ export default function Footer() {
       { label: "Ranking",     path: "/ranking" },
     ],
     Cuenta: [
-      { label: "Iniciar Sesión", path: "/login" },
-      { label: "Registrarse",    path: "/registro" },
+      { label: "Registrarse", path: "/registro" },
+      { label: "Iniciar Sesión",    path: "/login" },
       { label: "Mi Perfil",      path: "/perfil" },
     ],
     Legal: [

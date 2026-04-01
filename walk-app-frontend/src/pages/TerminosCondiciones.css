@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap');
+
+.terminos-root {
+  --verde: #2d5a27;
+  --verde-claro: #4a8c3f;
+  --tierra: #8b6914;
+  --crema: #f5f0e8;
+  --crema-oscura: #ede5d0;
+  --texto: #2c2c2c;
+  --texto-suave: #5a5a5a;
+  --rojo-suave: #c0392b;
+  font-family: 'Lato', sans-serif;
+  background: var(--crema);
+  min-height: 100vh;
+  color: var(--texto);
+}
+
+/* HERO */
+.term-hero {
+  background: linear-gradient(160deg, #1a3a16 0%, var(--verde) 60%, var(--verde-claro) 100%);
+  padding: 80px 24px 64px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.term-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: var(--crema);
+  clip-path: ellipse(55% 100% at 50% 100%);
+}
+
+.term-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 6px 18px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.term-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(30px, 5vw, 50px);
+  color: #fff;
+  margin: 0 0 16px;
+}
+
+.term-subtitle {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+  font-weight: 300;
+  max-width: 480px;
+  margin: 0 auto 24px;
+  line-height: 1.6;
+}
+
+.term-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  padding: 6px 16px;
+  border-radius: 20px;
+}
+
+/* CONTENT */
+.term-content {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+}
+
+.term-intro-box {
+  background: var(--verde);
+  color: #fff;
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-bottom: 48px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.term-intro-box strong {
+  color: #a8d8a0;
+}
+
+/* SECTIONS */
+.term-section {
+  margin-bottom: 12px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.term-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.term-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--crema-oscura);
+}
+
+.term-icon {
+  font-size: 22px;
+}
+
+.term-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 21px;
+  color: var(--verde);
+  margin: 0;
+}
+
+.term-section p {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--texto-suave);
+  margin: 0 0 12px;
+}
+
+.term-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+}
+
+.term-section ul li {
+  font-size: 15px;
+  color: var(--texto-suave);
+  line-height: 1.7;
+  padding: 5px 0 5px 26px;
+  position: relative;
+}
+
+.term-section ul li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--verde-claro);
+  font-weight: 700;
+}
+
+/* ALERTS */
+.term-warning {
+  background: #fdf3f2;
+  border: 1px solid #f5c6c2;
+  border-left: 4px solid var(--rojo-suave);
+  border-radius: 0 10px 10px 0;
+  padding: 16px 20px;
+  margin: 14px 0;
+}
+
+.term-warning p {
+  margin: 0;
+  font-size: 14px;
+  color: #7a2218;
+  line-height: 1.6;
+}
+
+.term-note {
+  background: var(--crema-oscura);
+  border-left: 4px solid var(--tierra);
+  border-radius: 0 10px 10px 0;
+  padding: 16px 20px;
+  margin: 14px 0;
+}
+
+.term-note p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--texto);
+  line-height: 1.6;
+}
+
+/* DIVIDER */
+.term-divider {
+  height: 1px;
+  background: linear-gradient(to right, var(--verde-claro), transparent);
+  margin: 36px 0;
+  opacity: 0.25;
+}
+
+/* FOOTER */
+.term-footer {
+  background: linear-gradient(135deg, var(--verde) 0%, #1a3a16 100%);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  color: #fff;
+  margin-top: 16px;
+}
+
+.term-footer h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  margin: 0 0 10px;
+}
+
+.term-footer p {
+  font-size: 14px;
+  opacity: 0.82;
+  margin: 0 0 8px;
+  line-height: 1.6;
+}
+
+.term-footer a {
+  color: #a8d8a0;
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.term-footer a:hover {
+  color: #c5e8bf;
+}
+
+.term-footer-legal {
+  font-size: 12px !important;
+  opacity: 0.5 !important;
+}

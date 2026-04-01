@@ -14,6 +14,10 @@ import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
 import SOSButton from "./components/SOSButton";
 import ActivarCuenta from "./pages/ActivarCuenta";
+import PoliticaPrivacidad from './pages/PoliticaPrivacidad';
+import TerminosCondiciones from './pages/TerminosCondiciones';
+import Contacto from './pages/Contacto';
+import RecuperarContrasena from './pages/RecuperarContrasena';
 
 function App() {
   const isAuthenticated = !!localStorage.getItem("access_token");
@@ -35,7 +39,11 @@ function App() {
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/dashboard" element={<AdminPanel />} />
         <Route path="/activar/:uidb64/:token" element={<ActivarCuenta />} />
-        <Route path="*" element={<NotFound />} />
+        <Route path="/privacidad" element={<PoliticaPrivacidad />} />
+        <Route path="/terminos" element={<TerminosCondiciones />} />
+        <Route path="/contacto" element={<Contacto />} />
+        <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
+        <Route path="*" element={<NotFound />} />  {/* Siempre al final */}
       </Routes>
     </>
   );

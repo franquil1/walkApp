@@ -81,7 +81,7 @@ export default function Login() {
             <div className="login-field login-field--password">
               <div className="login-label-row">
                 <label className="login-label">Contraseña</label>
-                <a href="/password_reset/" className="login-forgot">¿Olvidaste tu contraseña?</a>
+                <a href="/recuperar-contrasena" className="login-forgot">¿Olvidaste tu contraseña?</a>
               </div>
               <div className="login-password-wrapper">
                 <input type={showPassword ? "text" : "password"} name="password"

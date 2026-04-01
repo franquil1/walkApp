@@ -11,6 +11,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from .models import UsuarioPersonalizado
 from .utils import account_activation_token
+import random
+import string
+from django.core.cache import cache
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
 
 
 # ─── LOGIN ───────────────────────────────────────────────────────────────────
@@ -402,3 +408,120 @@ def api_atender_alerta_sos(request, alerta_id):
     alerta.save()
 
     return Response({'mensaje': f'Alerta marcada como {nuevo_estado}.', 'estado': alerta.estado})
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_password_reset(request):
+    """
+    Paso 1: Recibe el correo y envía un código de 6 dígitos.
+    POST /api/auth/password-reset/
+    Body: { email }
+    """
+    email = request.data.get('email', '').strip()
+ 
+    if not email:
+        return Response({'error': 'El correo es obligatorio.'}, status=400)
+ 
+    try:
+        user = UsuarioPersonalizado.objects.get(email=email)
+    except UsuarioPersonalizado.DoesNotExist:
+        # Por seguridad respondemos igual aunque no exista el correo
+        return Response({'mensaje': 'Si ese correo está registrado, recibirás un código.'})
+ 
+    # Generar código de 6 dígitos y guardarlo en caché 10 minutos
+    codigo = ''.join(random.choices(string.digits, k=6))
+    cache.set(f"password_reset_{email}", codigo, timeout=600)
+ 
+    # Enviar correo
+    try:
+        email_message = EmailMessage(
+            subject='Código para restablecer tu contraseña — Walk App',
+            body=f"""
+            <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 24px;">
+                <h2 style="color: #2d5a27;">🥾 Walk App</h2>
+                <p>Hola <strong>{user.username}</strong>,</p>
+                <p>Recibimos una solicitud para restablecer tu contraseña. Usa el siguiente código:</p>
+                <div style="background: #f5f0e8; border-radius: 10px; padding: 28px; text-align: center; margin: 24px 0;">
+                    <span style="font-size: 40px; font-weight: bold; letter-spacing: 12px; color: #2d5a27;">{codigo}</span>
+                </div>
+                <p style="color: #888; font-size: 13px;">
+                    Este código expira en <strong>10 minutos</strong>.<br>
+                    Si no solicitaste este cambio, ignora este correo.
+                </p>
+            </div>
+            """,
+            to=[email]
+        )
+        email_message.content_subtype = "html"
+        email_message.encoding = "utf-8"
+        email_message.send()
+    except Exception as e:
+        return Response({'error': f'No se pudo enviar el correo: {str(e)}'}, status=500)
+ 
+    return Response({'mensaje': 'Si ese correo está registrado, recibirás un código.'})
+ 
+ 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_password_reset_verify(request):
+    """
+    Paso 2: Verifica el código de 6 dígitos.
+    POST /api/auth/password-reset/verify/
+    Body: { email, code }
+    """
+    email = request.data.get('email', '').strip()
+    code  = request.data.get('code', '').strip()
+ 
+    if not email or not code:
+        return Response({'error': 'Correo y código son obligatorios.'}, status=400)
+ 
+    codigo_valido = cache.get(f"password_reset_{email}")
+ 
+    if not codigo_valido:
+        return Response({'error': 'El código ha expirado. Solicita uno nuevo.'}, status=400)
+ 
+    if code != codigo_valido:
+        return Response({'error': 'Código incorrecto.'}, status=400)
+ 
+    # Marcar verificación exitosa para el paso 3
+    cache.set(f"password_reset_verified_{email}", True, timeout=600)
+ 
+    return Response({'mensaje': 'Código verificado correctamente.'})
+ 
+ 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_password_reset_confirm(request):
+    """
+    Paso 3: Cambia la contraseña si el código fue verificado.
+    POST /api/auth/password-reset/confirm/
+    Body: { email, new_password }
+    """
+    email        = request.data.get('email', '').strip()
+    new_password = request.data.get('new_password', '')
+ 
+    if not email or not new_password:
+        return Response({'error': 'Correo y nueva contraseña son obligatorios.'}, status=400)
+ 
+    # Verificar que pasó por el paso 2
+    if not cache.get(f"password_reset_verified_{email}"):
+        return Response({'error': 'Debes verificar el código primero.'}, status=400)
+ 
+    try:
+        user = UsuarioPersonalizado.objects.get(email=email)
+    except UsuarioPersonalizado.DoesNotExist:
+        return Response({'error': 'Usuario no encontrado.'}, status=404)
+ 
+    # Validar contraseña con las reglas de Django
+    try:
+        validate_password(new_password, user)
+    except ValidationError as e:
+        return Response({'error': ' '.join(e.messages)}, status=400)
+ 
+    # Cambiar contraseña y limpiar caché
+    user.set_password(new_password)
+    user.save()
+    cache.delete(f"password_reset_{email}")
+    cache.delete(f"password_reset_verified_{email}")
+ 
+    return Response({'mensaje': 'Contraseña actualizada correctamente. Ya puedes iniciar sesión.'})
